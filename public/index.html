@@ -4,144 +4,2718 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Cat Hub</title>
+
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#f6f2fb;color:#292438}
-button,input{font:inherit}.hidden{display:none!important}.layout{min-height:100vh;display:flex}.side{width:235px;background:#ffffff;border-right:1px solid #e4dff0;padding:18px;display:flex;flex-direction:column;gap:8px}.brand{font-weight:800;font-size:22px;padding:8px 4px 20px;color:#6e55a7}.nav{border:0;background:transparent;text-align:left;padding:12px;border-radius:12px;cursor:pointer}.nav:hover,.nav.active{background:#eee7fb;color:#684ca1}.main{flex:1}.top{height:70px;background:#fff;border-bottom:1px solid #e4dff0;display:flex;align-items:center;justify-content:space-between;padding:0 24px}.page{padding:24px}.panel{background:#fff;border:1px solid #e4dff0;border-radius:18px;padding:18px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}.card{background:#fff;border:1px solid #e4dff0;border-radius:16px;overflow:hidden}.thumb{width:100%;aspect-ratio:16/9;object-fit:cover;background:#eee}.cardbody{padding:13px}.btn{border:0;background:#7659ad;color:white;padding:10px 14px;border-radius:10px;cursor:pointer}.btn.alt{background:#eee7fb;color:#614895}.input{border:1px solid #dcd5e8;border-radius:11px;padding:11px;width:100%}.row{display:flex;gap:10px;align-items:center}.search{max-width:650px}.muted{color:#7d768b}.list{display:grid;gap:10px}.item{padding:13px;border:1px solid #e4dff0;border-radius:12px;background:#fff}.auth{min-height:100vh;display:grid;place-items:center}.authbox{width:min(430px,92vw);background:#fff;padding:28px;border-radius:20px;border:1px solid #e4dff0;box-shadow:0 15px 45px #5c4a7720}.chatwrap{display:grid;grid-template-columns:280px 1fr;gap:14px;height:calc(100vh - 120px)}.messages{height:calc(100% - 70px);overflow:auto;padding:12px}.msg{margin:9px 0}.bubble{display:inline-block;max-width:75%;padding:10px 13px;border-radius:14px;background:#eeeaf4}.mine{text-align:right}.mine .bubble{background:#7659ad;color:#fff}.bubble img{max-width:240px;border-radius:10px;display:block;margin-top:7px}.composer{display:flex;gap:8px;border-top:1px solid #e4dff0;padding:10px}.small{font-size:13px}.error{color:#b6384b;min-height:20px}iframe.game{width:100%;height:75vh;border:0;border-radius:16px;background:#000}
-@media(max-width:800px){.side{width:70px;padding:8px}.brand{font-size:0}.brand:after{content:"C";font-size:24px}.nav{font-size:0;text-align:center}.nav::first-letter{font-size:20px}.chatwrap{grid-template-columns:1fr}.top{padding:0 14px}}
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  background: #f6f2fb;
+  color: #292438;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ================================
+   Login
+================================ */
+
+.auth {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background:
+    radial-gradient(circle at top left, #eee4ff, transparent 40%),
+    radial-gradient(circle at bottom right, #e2eaff, transparent 40%),
+    #f6f2fb;
+}
+
+.authbox {
+  width: min(430px, 92vw);
+  background: white;
+  padding: 30px;
+  border-radius: 22px;
+  border: 1px solid #e4dff0;
+  box-shadow: 0 20px 60px rgba(80, 60, 120, 0.15);
+}
+
+.authbox h1 {
+  margin: 0 0 5px;
+  color: #6e55a7;
+}
+
+.authbox p {
+  margin-top: 0;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 20px 0;
+}
+
+.auth-tab {
+  flex: 1;
+  border: 0;
+  padding: 11px;
+  border-radius: 11px;
+  background: #eee7fb;
+  color: #614895;
+}
+
+.auth-tab.active {
+  background: #7659ad;
+  color: white;
+}
+
+.auth-form {
+  display: grid;
+  gap: 10px;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 13px;
+  border: 1px solid #dcd5e8;
+  border-radius: 11px;
+  background: white;
+  outline: none;
+}
+
+.input:focus {
+  border-color: #7659ad;
+  box-shadow: 0 0 0 3px rgba(118, 89, 173, 0.12);
+}
+
+.btn {
+  border: 0;
+  background: #7659ad;
+  color: white;
+  padding: 11px 15px;
+  border-radius: 11px;
+  font-weight: 700;
+}
+
+.btn:hover {
+  filter: brightness(0.97);
+}
+
+.btn.alt {
+  background: #eee7fb;
+  color: #614895;
+}
+
+.error {
+  color: #b6384b;
+  min-height: 22px;
+  margin-top: 10px;
+}
+
+/* ================================
+   Main layout
+================================ */
+
+.layout {
+  min-height: 100vh;
+  display: flex;
+}
+
+.side {
+  width: 240px;
+  background: white;
+  border-right: 1px solid #e4dff0;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.brand {
+  font-size: 23px;
+  font-weight: 800;
+  color: #6e55a7;
+  padding: 8px 5px 20px;
+}
+
+.nav {
+  border: 0;
+  background: transparent;
+  color: #353142;
+  text-align: left;
+  padding: 12px 13px;
+  border-radius: 12px;
+}
+
+.nav:hover,
+.nav.active {
+  background: #eee7fb;
+  color: #684ca1;
+}
+
+.profile-area {
+  margin-top: auto;
+  padding-top: 15px;
+  border-top: 1px solid #ece8f2;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+}
+
+.top {
+  height: 70px;
+  background: white;
+  border-bottom: 1px solid #e4dff0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+
+.page {
+  padding: 24px;
+}
+
+.panel {
+  background: white;
+  border: 1px solid #e4dff0;
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.toolbar .input {
+  flex: 1;
+}
+
+.muted {
+  color: #7d768b;
+}
+
+.small {
+  font-size: 13px;
+}
+
+.list {
+  display: grid;
+  gap: 10px;
+}
+
+.item {
+  padding: 13px;
+  border: 1px solid #e4dff0;
+  border-radius: 12px;
+  background: white;
+}
+
+.item-actions {
+  float: right;
+  display: flex;
+  gap: 7px;
+}
+
+/* ================================
+   Cat Tube
+================================ */
+
+.grid {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fill, minmax(230px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background: white;
+  border: 1px solid #e4dff0;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: #eee;
+}
+
+.cardbody {
+  padding: 14px;
+}
+
+.cardbody h3,
+.cardbody p {
+  margin-top: 0;
+}
+
+/* ================================
+   DM
+================================ */
+
+.chatwrap {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 14px;
+  height: calc(100vh - 120px);
+}
+
+.dm-list {
+  overflow: auto;
+}
+
+.dm-chat {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 18px;
+}
+
+.msg {
+  margin: 10px 0;
+}
+
+.msg.mine {
+  text-align: right;
+}
+
+.msg-name {
+  font-size: 12px;
+  color: #8a8296;
+  margin-bottom: 4px;
+}
+
+.bubble {
+  display: inline-block;
+  max-width: 75%;
+  padding: 10px 13px;
+  border-radius: 14px;
+  background: #eeeaf4;
+  text-align: left;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.msg.mine .bubble {
+  background: #7659ad;
+  color: white;
+}
+
+.bubble img {
+  display: block;
+  max-width: 260px;
+  max-height: 300px;
+  border-radius: 10px;
+  margin-top: 7px;
+}
+
+.composer {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  border-top: 1px solid #e4dff0;
+  padding: 11px;
+}
+
+.composer .input {
+  flex: 1;
+}
+
+/* ================================
+   Game
+================================ */
+
+.game-player {
+  width: 100%;
+  height: 75vh;
+  border: 0;
+  border-radius: 16px;
+  background: #111;
+}
+
+/* ================================
+   Admin
+================================ */
+
+pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #f8f7fb;
+  padding: 12px;
+  border-radius: 10px;
+  overflow: auto;
+}
+
+/* ================================
+   Responsive
+================================ */
+
+@media (max-width: 800px) {
+  .side {
+    width: 72px;
+    padding: 8px;
+  }
+
+  .brand {
+    font-size: 0;
+    text-align: center;
+  }
+
+  .brand::after {
+    content: "C";
+    font-size: 24px;
+  }
+
+  .nav {
+    font-size: 0;
+    text-align: center;
+  }
+
+  .nav::first-letter {
+    font-size: 19px;
+  }
+
+  .chatwrap {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .dm-list {
+    max-height: 220px;
+  }
+
+  .messages {
+    min-height: 50vh;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .item-actions {
+    float: none;
+    margin-top: 8px;
+  }
+}
 </style>
 </head>
+
 <body>
+
+<!-- ================================
+     Login / Signup
+================================ -->
+
 <div id="auth" class="auth">
- <div class="authbox">
-  <h1>Cat Hub</h1>
-  <p class="muted">Cat Tube / Cloud Cat / Play Cat</p>
-  <div class="row"><button id="loginTab" class="btn alt">ログイン</button><button id="signupTab" class="btn alt">新規登録</button></div>
-  <form id="authForm">
-   <input id="username" class="input" placeholder="ユーザー名" required>
-   <input id="displayName" class="input hidden" placeholder="表示名">
-   <input id="password" class="input" type="password" placeholder="パスワード（8文字以上）" required>
-   <label id="termsRow" class="small hidden"><input id="terms" type="checkbox"> 利用規約に同意する</label>
-   <button class="btn" style="width:100%">開始</button>
-  </form>
-  <div id="authError" class="error"></div>
- </div>
+
+  <div class="authbox">
+
+    <h1>Cat Hub</h1>
+
+    <p class="muted">
+      Cat Tube / Cloud Cat / Play Cat
+    </p>
+
+    <div class="auth-tabs">
+      <button
+        id="loginTab"
+        class="auth-tab active"
+        type="button"
+      >
+        ログイン
+      </button>
+
+      <button
+        id="signupTab"
+        class="auth-tab"
+        type="button"
+      >
+        新規登録
+      </button>
+    </div>
+
+    <form id="authForm" class="auth-form">
+
+      <input
+        id="username"
+        class="input"
+        placeholder="ユーザー名"
+        autocomplete="username"
+        required
+      >
+
+      <input
+        id="displayName"
+        class="input hidden"
+        placeholder="表示名"
+        autocomplete="name"
+      >
+
+      <input
+        id="password"
+        class="input"
+        type="password"
+        placeholder="パスワード（8文字以上）"
+        autocomplete="current-password"
+        required
+      >
+
+      <label
+        id="termsRow"
+        class="small hidden"
+      >
+        <input
+          id="terms"
+          type="checkbox"
+        >
+        利用規約に同意する
+      </label>
+
+      <button
+        id="authButton"
+        class="btn"
+        type="submit"
+      >
+        ログイン
+      </button>
+
+    </form>
+
+    <div id="authError" class="error"></div>
+
+  </div>
+
 </div>
+
+
+<!-- ================================
+     Main application
+================================ -->
 
 <div id="app" class="layout hidden">
- <aside class="side">
-  <div class="brand">Cat Hub</div>
-  <button class="nav active" data-panel="tube">Cat Tube</button>
-  <button class="nav" data-panel="cloud">Cloud Cat</button>
-  <button class="nav" data-panel="friends">フレンド</button>
-  <button class="nav" data-panel="rooms">ルーム</button>
-  <button class="nav" data-panel="play">Play Cat</button>
-  <button class="nav" data-panel="admin">管理</button>
-  <button class="nav" data-panel="settings">設定</button>
-  <div style="margin-top:auto"><span id="me"></span><br><button id="logout" class="nav">ログアウト</button></div>
- </aside>
- <main class="main">
-  <header class="top"><strong id="title">Cat Tube</strong><span id="topStatus" class="muted"></span></header>
-  <div class="page">
-   <section id="tube" class="panel">
-    <div class="row search"><input id="tubeSearch" class="input" placeholder="YouTubeを検索"><button id="tubeSearchBtn" class="btn">検索</button></div>
-    <div id="tubeResults" class="grid" style="margin-top:18px"></div>
-   </section>
 
-   <section id="cloud" class="panel hidden">
-    <div class="chatwrap">
-      <div class="list"><button id="refreshDM" class="btn alt">DM更新</button><div id="dmList"></div></div>
-      <div class="panel" style="padding:0;overflow:hidden"><div id="dmMessages" class="messages"><div class="muted">DMを選択してください</div></div><form id="dmForm" class="composer hidden"><input id="dmInput" class="input" placeholder="メッセージ"><input id="dmImage" type="file" accept="image/*" hidden><label for="dmImage" class="btn alt">画像</label><button class="btn">送信</button></form></div>
+  <aside class="side">
+
+    <div class="brand">
+      Cat Hub
     </div>
-   </section>
 
-   <section id="friends" class="panel hidden">
-    <div class="row"><input id="userSearch" class="input" placeholder="ユーザー検索"><button id="userSearchBtn" class="btn">検索</button></div>
-    <h3>検索結果</h3><div id="userResults" class="list"></div><h3>フレンド</h3><div id="friendList" class="list"></div>
-   </section>
+    <button
+      class="nav active"
+      data-panel="tube"
+      type="button"
+    >
+      Cat Tube
+    </button>
 
-   <section id="rooms" class="panel hidden">
-    <form id="roomForm" class="row"><input id="roomName" class="input" placeholder="ルーム名" required><label><input id="privateRoom" type="checkbox"> 非公開</label><label><input id="requireCode" type="checkbox"> 参加コード</label><input id="joinCode" class="input" placeholder="参加コード"></form>
-    <button id="roomCreate" class="btn" style="margin:10px 0">ルーム作成</button>
-    <h3>公開ルーム</h3><div id="publicRooms" class="list"></div>
-    <h3>参加中のルーム / 管理ルーム</h3><div id="myRooms" class="list"></div>
-   </section>
+    <button
+      class="nav"
+      data-panel="cloud"
+      type="button"
+    >
+      Cloud Cat
+    </button>
 
-   <section id="play" class="panel hidden">
-    <h2>Play Cat</h2><div id="games" class="grid"></div>
-   </section>
+    <button
+      class="nav"
+      data-panel="friends"
+      type="button"
+    >
+      フレンド
+    </button>
 
-   <section id="admin" class="panel hidden">
-    <h2>管理</h2><div id="adminArea" class="list"><div class="muted">Adminのみ利用できます。</div></div>
-   </section>
+    <button
+      class="nav"
+      data-panel="rooms"
+      type="button"
+    >
+      ルーム
+    </button>
 
-   <section id="settings" class="panel hidden">
-    <h2>設定</h2>
-    <form id="profileForm" class="list"><input id="profileName" class="input" placeholder="表示名"><input id="profileBio" class="input" placeholder="自己紹介"><button class="btn">保存</button></form>
-    <hr><form id="passwordForm" class="list"><input id="newPassword" class="input" type="password" placeholder="新しいパスワード"><button class="btn">パスワード変更</button></form>
-   </section>
-  </div>
- </main>
+    <button
+      class="nav"
+      data-panel="play"
+      type="button"
+    >
+      Play Cat
+    </button>
+
+    <button
+      id="adminNav"
+      class="nav hidden"
+      data-panel="admin"
+      type="button"
+    >
+      管理
+    </button>
+
+    <button
+      class="nav"
+      data-panel="settings"
+      type="button"
+    >
+      設定
+    </button>
+
+    <div class="profile-area">
+
+      <div id="me"></div>
+
+      <button
+        id="logout"
+        class="nav"
+        type="button"
+      >
+        ログアウト
+      </button>
+
+    </div>
+
+  </aside>
+
+
+  <main class="main">
+
+    <header class="top">
+
+      <strong id="title">
+        Cat Tube
+      </strong>
+
+      <span
+        id="topStatus"
+        class="muted"
+      ></span>
+
+    </header>
+
+
+    <div class="page">
+
+      <!-- ============================
+           Cat Tube
+      ============================= -->
+
+      <section
+        id="tube"
+        class="panel"
+      >
+
+        <div class="toolbar">
+
+          <input
+            id="tubeSearch"
+            class="input"
+            placeholder="YouTubeを検索"
+          >
+
+          <button
+            id="tubeSearchBtn"
+            class="btn"
+            type="button"
+          >
+            検索
+          </button>
+
+        </div>
+
+        <div
+          id="tubeResults"
+          class="grid"
+          style="margin-top:18px"
+        ></div>
+
+      </section>
+
+
+      <!-- ============================
+           Cloud Cat DM
+      ============================= -->
+
+      <section
+        id="cloud"
+        class="panel hidden"
+      >
+
+        <div class="chatwrap">
+
+          <div class="panel dm-list">
+
+            <button
+              id="refreshDM"
+              class="btn alt"
+              type="button"
+              style="width:100%;margin-bottom:10px"
+            >
+              DM更新
+            </button>
+
+            <div id="dmList"></div>
+
+          </div>
+
+
+          <div class="panel dm-chat">
+
+            <div
+              id="dmMessages"
+              class="messages"
+            >
+              <div class="muted">
+                DMを選択してください
+              </div>
+            </div>
+
+            <form
+              id="dmForm"
+              class="composer hidden"
+            >
+
+              <input
+                id="dmInput"
+                class="input"
+                placeholder="メッセージ"
+                autocomplete="off"
+              >
+
+              <input
+                id="dmImage"
+                type="file"
+                accept="image/*"
+                hidden
+              >
+
+              <label
+                for="dmImage"
+                class="btn alt"
+              >
+                画像
+              </label>
+
+              <button
+                class="btn"
+                type="submit"
+              >
+                送信
+              </button>
+
+            </form>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ============================
+           Friends
+      ============================= -->
+
+      <section
+        id="friends"
+        class="panel hidden"
+      >
+
+        <div class="toolbar">
+
+          <input
+            id="userSearch"
+            class="input"
+            placeholder="ユーザー検索"
+          >
+
+          <button
+            id="userSearchBtn"
+            class="btn"
+            type="button"
+          >
+            検索
+          </button>
+
+        </div>
+
+        <h3>検索結果</h3>
+
+        <div
+          id="userResults"
+          class="list"
+        ></div>
+
+        <h3>フレンド</h3>
+
+        <div
+          id="friendList"
+          class="list"
+        ></div>
+
+      </section>
+
+
+      <!-- ============================
+           Rooms
+      ============================= -->
+
+      <section
+        id="rooms"
+        class="panel hidden"
+      >
+
+        <h2>ルーム</h2>
+
+        <div class="item">
+
+          <h3>ルームを作成</h3>
+
+          <input
+            id="roomName"
+            class="input"
+            placeholder="ルーム名"
+          >
+
+          <label class="small">
+            <input
+              id="privateRoom"
+              type="checkbox"
+            >
+            プライベートルーム
+          </label>
+
+          <br>
+
+          <label class="small">
+            <input
+              id="requireCode"
+              type="checkbox"
+            >
+            参加コードを必須にする
+          </label>
+
+          <input
+            id="joinCode"
+            class="input"
+            placeholder="参加コード"
+          >
+
+          <button
+            id="roomCreate"
+            class="btn"
+            type="button"
+            style="margin-top:10px"
+          >
+            ルーム作成
+          </button>
+
+        </div>
+
+        <h3>公開ルーム</h3>
+
+        <div
+          id="publicRooms"
+          class="list"
+        ></div>
+
+        <h3>参加中のルーム / 管理ルーム</h3>
+
+        <div
+          id="myRooms"
+          class="list"
+        ></div>
+
+      </section>
+
+
+      <!-- ============================
+           Play Cat
+      ============================= -->
+
+      <section
+        id="play"
+        class="panel hidden"
+      >
+
+        <h2>Play Cat</h2>
+
+        <div
+          id="games"
+          class="grid"
+        ></div>
+
+      </section>
+
+
+      <!-- ============================
+           Admin
+      ============================= -->
+
+      <section
+        id="admin"
+        class="panel hidden"
+      >
+
+        <h2>管理</h2>
+
+        <div
+          id="adminArea"
+          class="list"
+        >
+          <div class="muted">
+            管理者専用ページです。
+          </div>
+        </div>
+
+      </section>
+
+
+      <!-- ============================
+           Settings
+      ============================= -->
+
+      <section
+        id="settings"
+        class="panel hidden"
+      >
+
+        <h2>設定</h2>
+
+        <form
+          id="profileForm"
+          class="list"
+        >
+
+          <input
+            id="profileName"
+            class="input"
+            placeholder="表示名"
+          >
+
+          <textarea
+            id="profileBio"
+            class="input"
+            placeholder="自己紹介"
+            rows="4"
+          ></textarea>
+
+          <button
+            class="btn"
+            type="submit"
+          >
+            保存
+          </button>
+
+        </form>
+
+        <hr>
+
+        <form
+          id="passwordForm"
+          class="list"
+        >
+
+          <input
+            id="newPassword"
+            class="input"
+            type="password"
+            placeholder="新しいパスワード"
+          >
+
+          <button
+            class="btn"
+            type="submit"
+          >
+            パスワード変更
+          </button>
+
+        </form>
+
+      </section>
+
+    </div>
+
+  </main>
+
 </div>
 
+
 <script src="/socket.io/socket.io.js"></script>
+
 <script>
-let mode="login",me=null,currentDm=null,currentRoom=null,socket=null;
-const $=s=>document.querySelector(s);
-const $$=s=>document.querySelectorAll(s);
-const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-async function api(url,opt={}){const r=await fetch(url,opt);const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||"エラー");return d}
+"use strict";
 
-$("#loginTab").onclick=()=>{mode="login";$("#displayName").classList.add("hidden");$("#termsRow").classList.add("hidden")};
-$("#signupTab").onclick=()=>{mode="signup";$("#displayName").classList.remove("hidden");$("#termsRow").classList.remove("hidden")};
-$("#authForm").onsubmit=async e=>{e.preventDefault();$("#authError").textContent="";
- try{
-  const body={username:$("#username").value,password:$("#password").value,displayName:$("#displayName").value,termsAccepted:$("#terms").checked};
-  me=(await api("/api/auth/"+(mode==="signup"?"signup":"login"),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})).user;start();
- }catch(err){$("#authError").textContent=err.message}
-};
-async function start(){
- $("#auth").classList.add("hidden");$("#app").classList.remove("hidden");$("#me").textContent=me.display_name||me.username;
- socket=io();socket.on("message",()=>currentDm&&loadDM(currentDm));socket.on("notification",()=>loadFriends());
- await loadGames();await loadFriends();await loadRooms();
- if(me.is_admin)$("#adminArea").innerHTML='<button class="btn" id="loadAdmin">管理データを読み込む</button><div id="adminData"></div>';
+/* ================================
+   State
+================================ */
+
+let mode = "login";
+let me = null;
+let currentDm = null;
+let socket = null;
+
+
+/* ================================
+   Helpers
+================================ */
+
+const $ = selector =>
+  document.querySelector(selector);
+
+const $$ = selector =>
+  document.querySelectorAll(selector);
+
+function esc(value) {
+  return String(value ?? "")
+    .replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    }[char]));
 }
-(async()=>{try{me=await api("/api/me");start()}catch{}})();
 
-$$(".nav").forEach(b=>b.onclick=async()=>{const panel=b.dataset.panel;if(!panel)return;$$(".nav").forEach(x=>x.classList.toggle("active",x===b));["tube","cloud","friends","rooms","play","admin","settings"].forEach(id=>$("#"+id).classList.toggle("hidden",id!==panel));$("#title").textContent=b.textContent.trim();if(panel==="tube"){}if(panel==="play")loadGames();if(panel==="rooms")loadRooms();if(panel==="cloud")loadDMRooms();if(panel==="settings")loadMe();if(panel==="admin"&&me.is_admin)setupAdmin()});
-$("#logout").onclick=async()=>{await api("/api/auth/logout",{method:"POST"});location.reload()};
+async function api(url, options = {}) {
+  const response =
+    await fetch(url, options);
 
-async function loadMe(){const u=await api("/api/me");$("#profileName").value=u.display_name||"";$("#profileBio").value=u.bio||""}
-$("#profileForm").onsubmit=async e=>{e.preventDefault();await api("/api/me",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({displayName:$("#profileName").value,bio:$("#profileBio").value})});alert("保存しました")};
-$("#passwordForm").onsubmit=async e=>{e.preventDefault();await api("/api/me/password",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({password:$("#newPassword").value})});$("#newPassword").value="";alert("変更しました")};
+  const data =
+    await response
+      .json()
+      .catch(() => ({}));
 
-$("#tubeSearchBtn").onclick=searchYouTube;
-$("#tubeSearch").addEventListener("keydown",e=>e.key==="Enter"&&searchYouTube());
-async function searchYouTube(){const q=$("#tubeSearch").value.trim();if(!q)return;$("#tubeResults").innerHTML="<div class='muted'>検索中...</div>";try{const items=await api("/api/youtube/search?q="+encodeURIComponent(q));$("#tubeResults").innerHTML=items.map(x=>{const id=x.id.videoId;return `<div class="card"><img class="thumb" src="${esc(x.snippet.thumbnails?.high?.url||x.snippet.thumbnails?.medium?.url||"")}"><div class="cardbody"><b>${esc(x.snippet.title)}</b><p class="muted">${esc(x.snippet.channelTitle)}</p><button class="btn" onclick="watch('${id}')">見る</button></div></div>`}).join("")}catch(e){$("#tubeResults").innerHTML="<div class='error'>"+esc(e.message)+"</div>"}}
-window.watch=async id=>{const d=await api("/api/youtube/video/"+id);if(!d)return;$("#tubeResults").innerHTML=`<div style="grid-column:1/-1"><h2>${esc(d.snippet.title)}</h2><div style="position:relative;padding-top:56.25%"><iframe src="https://www.youtube.com/embed/${encodeURIComponent(id)}" style="position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:16px" allowfullscreen></iframe></div><div style="margin-top:12px"><button class="btn alt" onclick="getStream('${id}')">Direct Stream情報を取得</button><a class="btn alt" target="_blank" href="https://www.youtube.com/watch?v=${encodeURIComponent(id)}">YouTubeで開く</a></div><div id="streamInfo"></div></div>`};
-window.getStream=async id=>{try{const d=await api("/api/youtube/stream?url="+encodeURIComponent("https://www.youtube.com/watch?v="+id));$("#streamInfo").innerHTML=`<p class="muted">ストリームURLを取得しました。URLは一時的な場合があります。</p><video controls style="width:100%;max-height:70vh;margin-top:10px" src="${esc(d.url)}"></video>`}catch(e){$("#streamInfo").innerHTML='<div class="error">'+esc(e.message)+'</div>'}};
+  if (!response.ok) {
+    throw new Error(
+      data.error || "エラーが発生しました"
+    );
+  }
 
-async function loadDMRooms(){const rooms=await api("/api/dm/rooms");$("#dmList").innerHTML=rooms.map(r=>`<div class="item" onclick="openDM(${r.room_id})"><b>${esc(r.display_name)}</b><div class="muted">${esc(r.last_message||"新しいDM")}</div></div>`).join("")||"<div class='muted'>DMがありません</div>"}
-$("#refreshDM").onclick=loadDMRooms;
-window.openDM=async id=>{const r=await api("/api/dm/open",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({userId:id})});currentDm=r.roomId;await loadDMRooms();socket.emit("joinRoom",currentDm);$("#dmForm").classList.remove("hidden");loadDM(currentDm)};
-async function loadDM(id){const msgs=await api("/api/dm/"+id);$("#dmMessages").innerHTML=msgs.map(m=>`<div class="msg ${m.sender_id===me.id?"mine":""}"><div class="small muted">${esc(m.display_name)}</div><span class="bubble">${m.deleted?"[削除済み]":esc(m.content)}${m.image_url?`<img src="${esc(m.image_url)}">`:""}</span></div>`).join("");$("#dmMessages").scrollTop=$("#dmMessages").scrollHeight}
-$("#dmForm").onsubmit=async e=>{e.preventDefault();const fd=new FormData();fd.append("content",$("#dmInput").value);if($("#dmImage").files[0])fd.append("image",$("#dmImage").files[0]);await api("/api/dm/"+currentDm,{method:"POST",body:fd});$("#dmInput").value="";$("#dmImage").value="";loadDM(currentDm);loadDMRooms()};
+  return data;
+}
 
-$("#userSearchBtn").onclick=async()=>{const u=await api("/api/users/search?q="+encodeURIComponent($("#userSearch").value));$("#userResults").innerHTML=u.map(x=>`<div class="item"><b>${esc(x.display_name)}</b> <span class="muted">@${esc(x.username)}</span><button class="btn alt" style="float:right" onclick="requestFriend(${x.id})">フレンド申請</button></div>`).join("")};
-window.requestFriend=async id=>{try{await api("/api/friends/request",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({userId:id})});alert("申請しました")}catch(e){alert(e.message)}};
-async function loadFriends(){const f=await api("/api/friends");$("#friendList").innerHTML=f.map(x=>`<div class="item"><b>${esc(x.display_name)}</b> <span class="muted">@${esc(x.username)}</span> ${x.status==="pending"&&x.requester_id!==me.id?`<button class="btn alt" onclick="acceptFriend(${x.id})">承認</button>`:`<button class="btn alt" onclick="openDM(${x.user_id})">DM</button>`}</div>`).join("")||"<div class='muted'>フレンドがいません</div>"}
-window.acceptFriend=async id=>{await api("/api/friends/accept",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({friendshipId:id})});loadFriends()};
 
-$("#roomCreate").onclick=async()=>{const body={name:$("#roomName").value,isPrivate:$("#privateRoom").checked,requireJoinCode:$("#requireCode").checked,joinCode:$("#joinCode").value};try{await api("/api/rooms",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});$("#roomName").value="";loadRooms()}catch(e){alert(e.message)}};
-async function loadRooms(){const [p,m]=await Promise.all([api("/api/rooms/public"),api("/api/rooms/mine")]);$("#publicRooms").innerHTML=p.map(r=>`<div class="item"><b>${esc(r.name)}</b><span class="muted"> ${r.member_count}人</span><button class="btn alt" style="float:right" onclick="joinRoom(${r.id},${r.require_join_code})">参加</button></div>`).join("")||"<div class='muted'>公開ルームがありません</div>";$("#myRooms").innerHTML=m.map(r=>`<div class="item"><b>${esc(r.name)}</b> ${r.is_private?"<span class='muted'>非公開</span>":""} ${r.owner_id===me.id?"<span class='muted'>管理者</span>":""}</div>`).join("")}
-window.joinRoom=async(id,required)=>{const code=required?prompt("参加コードを入力してください"):"";try{await api("/api/rooms/join",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({roomId:id,joinCode:code})});alert("参加しました");loadRooms()}catch(e){alert(e.message)}};
+/* ================================
+   Auth tabs
+================================ */
 
-async function loadGames(){try{const gs=await api("/api/games");$("#games").innerHTML=gs.map(g=>`<div class="card">${g.thumbnail_url?`<img class="thumb" src="${esc(g.thumbnail_url)}">`:""}<div class="cardbody"><h3>${esc(g.title)}</h3><p class="muted">${esc(g.description)}</p><button class="btn" onclick="playGame(${g.id},'${encodeURIComponent(g.game_url)}')">プレイ</button></div></div>`).join("")}catch(e){$("#games").innerHTML="<div class='error'>"+esc(e.message)+"</div>"}}
-window.playGame=async(id,url)=>{await api("/api/games/"+id+"/play",{method:"POST"});const u=decodeURIComponent(url);if(/^https:\\/\\/unityroom\\.com\\//i.test(u)){window.open(u,"_blank","noopener")}else{window.open(u,"_blank","noopener")}};
+$("#loginTab").addEventListener(
+  "click",
+  () => {
+    mode = "login";
 
-function setupAdmin(){if(!me.is_admin)return;$("#adminArea").innerHTML='<button class="btn" onclick="loadAdminAll()">管理情報を読み込む</button><div id="adminData" class="list" style="margin-top:12px"></div>'}
-window.loadAdminAll=async()=>{const [users,rooms,logs]=await Promise.all([api("/api/admin/users"),api("/api/admin/rooms"),api("/api/admin/logs")]);$("#adminData").innerHTML=`<div class="item"><b>ユーザー</b><pre>${esc(JSON.stringify(users,null,2))}</pre></div><div class="item"><b>ルーム</b><pre>${esc(JSON.stringify(rooms,null,2))}</pre></div><div class="item"><b>管理ログ</b><pre>${esc(JSON.stringify(logs,null,2))}</pre></div>`}
-$("#privateRoom").onchange=()=>{$("#requireCode").disabled=!$("#privateRoom").checked;if(!$("#privateRoom").checked){$("#requireCode").checked=false}};
+    $("#loginTab")
+      .classList.add("active");
+
+    $("#signupTab")
+      .classList.remove("active");
+
+    $("#displayName")
+      .classList.add("hidden");
+
+    $("#termsRow")
+      .classList.add("hidden");
+
+    $("#authButton")
+      .textContent = "ログイン";
+  }
+);
+
+$("#signupTab").addEventListener(
+  "click",
+  () => {
+    mode = "signup";
+
+    $("#signupTab")
+      .classList.add("active");
+
+    $("#loginTab")
+      .classList.remove("active");
+
+    $("#displayName")
+      .classList.remove("hidden");
+
+    $("#termsRow")
+      .classList.remove("hidden");
+
+    $("#authButton")
+      .textContent = "アカウント作成";
+  }
+);
+
+
+/* ================================
+   Login
+================================ */
+
+$("#authForm").addEventListener(
+  "submit",
+  async event => {
+
+    event.preventDefault();
+
+    $("#authError").textContent =
+      "処理中...";
+
+    const username =
+      $("#username")
+        .value
+        .trim();
+
+    const password =
+      $("#password")
+        .value;
+
+    const displayName =
+      $("#displayName")
+        .value
+        .trim();
+
+    try {
+
+      const body = {
+        username,
+        password,
+        displayName,
+        termsAccepted:
+          $("#terms").checked
+      };
+
+      const result =
+        await api(
+          mode === "signup"
+            ? "/api/auth/signup"
+            : "/api/auth/login",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+            body:
+              JSON.stringify(body)
+          }
+        );
+
+      me = result.user;
+
+      $("#authError")
+        .textContent = "";
+
+      await startApp();
+
+    } catch (error) {
+
+      console.error(
+        "認証エラー:",
+        error
+      );
+
+      $("#authError")
+        .textContent =
+        error.message ||
+        "ログインに失敗しました";
+    }
+  }
+);
+
+
+/* ================================
+   Start app
+================================ */
+
+async function startApp() {
+
+  $("#auth")
+    .classList
+    .add("hidden");
+
+  $("#app")
+    .classList
+    .remove("hidden");
+
+  $("#me")
+    .textContent =
+    me.display_name ||
+    me.username;
+
+  if (me.is_admin) {
+    $("#adminNav")
+      .classList
+      .remove("hidden");
+  }
+
+  socket = io();
+
+  socket.on(
+    "connect",
+    () => {
+      $("#topStatus")
+        .textContent = "接続中";
+    }
+  );
+
+  socket.on(
+    "disconnect",
+    () => {
+      $("#topStatus")
+        .textContent = "再接続待機中";
+    }
+  );
+
+  socket.on(
+    "message",
+    () => {
+      if (currentDm) {
+        loadDM(currentDm);
+      }
+    }
+  );
+
+  socket.on(
+    "notification",
+    () => {
+      loadFriends()
+        .catch(console.error);
+    }
+  );
+
+  socket.on(
+    "accountBanned",
+    () => {
+      alert(
+        "このアカウントは停止されました。"
+      );
+
+      location.reload();
+    }
+  );
+
+  await loadGames();
+  await loadFriends();
+  await loadRooms();
+  await loadDMRooms();
+}
+
+
+/* ================================
+   Restore login session
+================================ */
+
+(async () => {
+
+  try {
+
+    me =
+      await api("/api/me");
+
+    await startApp();
+
+  } catch {
+
+    // 未ログイン
+  }
+
+})();
+
+
+/* ================================
+   Navigation
+================================ */
+
+$$(".nav").forEach(
+  button => {
+
+    button.addEventListener(
+      "click",
+      async () => {
+
+        const panel =
+          button.dataset.panel;
+
+        if (!panel) {
+          return;
+        }
+
+        $$(".nav").forEach(
+          item => {
+            item.classList.toggle(
+              "active",
+              item === button
+            );
+          }
+        );
+
+        const panels = [
+          "tube",
+          "cloud",
+          "friends",
+          "rooms",
+          "play",
+          "admin",
+          "settings"
+        ];
+
+        panels.forEach(
+          id => {
+            $("#" + id)
+              .classList
+              .toggle(
+                "hidden",
+                id !== panel
+              );
+          }
+        );
+
+        $("#title")
+          .textContent =
+          button.textContent.trim();
+
+        try {
+
+          if (panel === "cloud") {
+            await loadDMRooms();
+          }
+
+          if (panel === "friends") {
+            await loadFriends();
+          }
+
+          if (panel === "rooms") {
+            await loadRooms();
+          }
+
+          if (panel === "play") {
+            await loadGames();
+          }
+
+          if (panel === "settings") {
+            await loadMe();
+          }
+
+          if (
+            panel === "admin" &&
+            me?.is_admin
+          ) {
+            setupAdmin();
+          }
+
+        } catch (error) {
+
+          console.error(error);
+
+        }
+
+      }
+    );
+
+  }
+);
+
+
+/* ================================
+   Logout
+================================ */
+
+$("#logout").addEventListener(
+  "click",
+  async () => {
+
+    try {
+
+      await api(
+        "/api/auth/logout",
+        {
+          method: "POST"
+        }
+      );
+
+    } finally {
+
+      location.reload();
+
+    }
+
+  }
+);
+
+
+/* ================================
+   Settings
+================================ */
+
+async function loadMe() {
+
+  const user =
+    await api("/api/me");
+
+  $("#profileName")
+    .value =
+    user.display_name || "";
+
+  $("#profileBio")
+    .value =
+    user.bio || "";
+}
+
+$("#profileForm").addEventListener(
+  "submit",
+  async event => {
+
+    event.preventDefault();
+
+    try {
+
+      await api(
+        "/api/me",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+          body: JSON.stringify({
+            displayName:
+              $("#profileName").value,
+            bio:
+              $("#profileBio").value
+          })
+        }
+      );
+
+      alert(
+        "プロフィールを保存しました"
+      );
+
+    } catch (error) {
+
+      alert(error.message);
+
+    }
+
+  }
+);
+
+$("#passwordForm").addEventListener(
+  "submit",
+  async event => {
+
+    event.preventDefault();
+
+    const password =
+      $("#newPassword").value;
+
+    try {
+
+      await api(
+        "/api/me/password",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+          body:
+            JSON.stringify({
+              password
+            })
+        }
+      );
+
+      $("#newPassword")
+        .value = "";
+
+      alert(
+        "パスワードを変更しました"
+      );
+
+    } catch (error) {
+
+      alert(error.message);
+
+    }
+
+  }
+);
+
+
+/* ================================
+   Cat Tube
+================================ */
+
+$("#tubeSearchBtn").addEventListener(
+  "click",
+  searchYouTube
+);
+
+$("#tubeSearch").addEventListener(
+  "keydown",
+  event => {
+
+    if (event.key === "Enter") {
+      event.preventDefault();
+      searchYouTube();
+    }
+
+  }
+);
+
+async function searchYouTube() {
+
+  const query =
+    $("#tubeSearch")
+      .value
+      .trim();
+
+  if (!query) {
+    return;
+  }
+
+  $("#tubeResults")
+    .innerHTML =
+    "<div class='muted'>検索中...</div>";
+
+  try {
+
+    const items =
+      await api(
+        "/api/youtube/search?q=" +
+        encodeURIComponent(query)
+      );
+
+    if (!items.length) {
+
+      $("#tubeResults")
+        .innerHTML =
+        "<div class='muted'>動画が見つかりませんでした</div>";
+
+      return;
+    }
+
+    $("#tubeResults")
+      .innerHTML =
+      items.map(
+        item => {
+
+          const id =
+            item.id?.videoId;
+
+          const thumbnail =
+            item.snippet
+              ?.thumbnails
+              ?.high
+              ?.url ||
+            item.snippet
+              ?.thumbnails
+              ?.medium
+              ?.url ||
+            "";
+
+          return `
+            <div class="card">
+
+              <img
+                class="thumb"
+                src="${esc(thumbnail)}"
+                alt=""
+              >
+
+              <div class="cardbody">
+
+                <h3>
+                  ${esc(
+                    item.snippet?.title
+                  )}
+                </h3>
+
+                <p class="muted">
+                  ${esc(
+                    item.snippet
+                      ?.channelTitle
+                  )}
+                </p>
+
+                <button
+                  class="btn"
+                  type="button"
+                  onclick="watchYouTube('${esc(id)}')"
+                >
+                  見る
+                </button>
+
+              </div>
+
+            </div>
+          `;
+        }
+      )
+      .join("");
+
+  } catch (error) {
+
+    console.error(error);
+
+    $("#tubeResults")
+      .innerHTML =
+      `<div class="error">${esc(error.message)}</div>`;
+
+  }
+}
+
+
+window.watchYouTube =
+  async function (id) {
+
+    try {
+
+      const data =
+        await api(
+          "/api/youtube/video/" +
+          encodeURIComponent(id)
+        );
+
+      if (!data) {
+        return;
+      }
+
+      $("#tubeResults")
+        .innerHTML = `
+          <div
+            style="
+              grid-column:1/-1;
+            "
+          >
+
+            <h2>
+              ${esc(
+                data.snippet?.title
+              )}
+            </h2>
+
+            <div
+              style="
+                position:relative;
+                padding-top:56.25%;
+              "
+            >
+
+              <iframe
+                src="https://www.youtube.com/embed/${encodeURIComponent(id)}"
+                allowfullscreen
+                style="
+                  position:absolute;
+                  inset:0;
+                  width:100%;
+                  height:100%;
+                  border:0;
+                  border-radius:16px;
+                "
+              ></iframe>
+
+            </div>
+
+            <div
+              class="toolbar"
+              style="
+                margin-top:12px;
+                flex-wrap:wrap;
+              "
+            >
+
+              <button
+                class="btn alt"
+                type="button"
+                onclick="getStream('${esc(id)}')"
+              >
+                Direct Stream
+              </button>
+
+              <a
+                class="btn alt"
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://www.youtube.com/watch?v=${encodeURIComponent(id)}"
+              >
+                YouTubeで開く
+              </a>
+
+            </div>
+
+            <div
+              id="streamInfo"
+              style="margin-top:10px"
+            ></div>
+
+          </div>
+        `;
+
+    } catch (error) {
+
+      alert(error.message);
+
+    }
+
+  };
+
+
+window.getStream =
+  async function (id) {
+
+    try {
+
+      const data =
+        await api(
+          "/api/youtube/stream?url=" +
+          encodeURIComponent(
+            "https://www.youtube.com/watch?v=" +
+            id
+          )
+        );
+
+      $("#streamInfo")
+        .innerHTML = `
+          <p class="muted">
+            一時ストリームURLを取得しました。
+          </p>
+
+          <video
+            controls
+            style="
+              width:100%;
+              max-height:70vh;
+              margin-top:10px;
+            "
+            src="${esc(data.url)}"
+          ></video>
+        `;
+
+    } catch (error) {
+
+      $("#streamInfo")
+        .innerHTML =
+        `<div class="error">${esc(error.message)}</div>`;
+
+    }
+
+  };
+
+
+/* ================================
+   DM
+================================ */
+
+async function loadDMRooms() {
+
+  const rooms =
+    await api("/api/dm/rooms");
+
+  if (!rooms.length) {
+
+    $("#dmList")
+      .innerHTML =
+      "<div class='muted'>DMがありません</div>";
+
+    return;
+  }
+
+  $("#dmList")
+    .innerHTML =
+    rooms.map(
+      room => `
+        <div
+          class="item"
+          style="cursor:pointer"
+          onclick="openDM(${room.user_id})"
+        >
+
+          <b>
+            ${esc(room.display_name)}
+          </b>
+
+          <div class="muted">
+            ${esc(
+              room.last_message ||
+              "新しいDM"
+            )}
+          </div>
+
+        </div>
+      `
+    )
+    .join("");
+}
+
+
+$("#refreshDM").addEventListener(
+  "click",
+  loadDMRooms
+);
+
+
+window.openDM =
+  async function (userId) {
+
+    try {
+
+      const result =
+        await api(
+          "/api/dm/open",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+            body:
+              JSON.stringify({
+                userId
+              })
+          }
+        );
+
+      currentDm =
+        result.roomId;
+
+      await loadDMRooms();
+
+      if (socket) {
+        socket.emit(
+          "joinRoom",
+          currentDm
+        );
+      }
+
+      $("#dmForm")
+        .classList
+        .remove("hidden");
+
+      await loadDM(currentDm);
+
+    } catch (error) {
+
+      alert(error.message);
+
+    }
+
+  };
+
+
+async function loadDM(roomId) {
+
+  const messages =
+    await api(
+      "/api/dm/" +
+      encodeURIComponent(roomId)
+    );
+
+  if (!messages.length) {
+
+    $("#dmMessages")
+      .innerHTML =
+      "<div class='muted'>メッセージはありません</div>";
+
+    return;
+  }
+
+  $("#dmMessages")
+    .innerHTML =
+    messages
+      .map(
+        message => {
+
+          const mine =
+            message.sender_id ===
+            me.id;
+
+          const body =
+            message.deleted
+              ? "[削除済み]"
+              : esc(
+                  message.content
+                );
+
+          const image =
+            message.image_url
+              ? `
+                <img
+                  src="${esc(
+                    message.image_url
+                  )}"
+                  alt=""
+                >
+              `
+              : "";
+
+          return `
+            <div
+              class="msg ${mine ? "mine" : ""}"
+            >
+
+              <div class="msg-name">
+                ${esc(
+                  message.display_name
+                )}
+              </div>
+
+              <span class="bubble">
+                ${body}
+                ${image}
+              </span>
+
+            </div>
+          `;
+
+        }
+      )
+      .join("");
+
+  $("#dmMessages")
+    .scrollTop =
+    $("#dmMessages").scrollHeight;
+}
+
+
+$("#dmForm").addEventListener(
+  "submit",
+  async event => {
+
+    event.preventDefault();
+
+    if (!currentDm) {
+      return;
+    }
+
+    const formData =
+      new FormData();
+
+    formData.append(
+      "content",
+      $("#dmInput").value
+    );
+
+    const image =
+      $("#dmImage").files[0];
+
+    if (image) {
+      formData.append(
+        "image",
+        image
+      );
+    }
+
+    try {
+
+      await api(
+        "/api/dm/" +
+        encodeURIComponent(
+          currentDm
+        ),
+        {
+          method: "POST",
+          body: formData
+        }
+      );
+
+      $("#dmInput")
+        .value = "";
+
+      $("#dmImage")
+        .value = "";
+
+      await loadDM(
+        currentDm
+      );
+
+      await loadDMRooms();
+
+    } catch (error) {
+
+      alert(error.message);
+
+    }
+
+  }
+);
+
+
+/* ================================
+   Friends
+================================ */
+
+$("#userSearchBtn").addEventListener(
+  "click",
+  searchUsers
+);
+
+$("#userSearch").addEventListener(
+  "keydown",
+  event => {
+
+    if (event.key === "Enter") {
+      event.preventDefault();
+      searchUsers();
+    }
+
+  }
+);
+
+
+async function searchUsers() {
+
+  const query =
+    $("#userSearch")
+      .value
+      .trim();
+
+  if (!query) {
+    return;
+  }
+
+  try {
+
+    const users =
+      await api(
+        "/api/users/search?q=" +
+        encodeURIComponent(query)
+      );
+
+    $("#userResults")
+      .innerHTML =
+      users.map(
+        user => `
+          <div class="item">
+
+            <b>
+              ${esc(user.display_name)}
+            </b>
+
+            <span class="muted">
+              @${esc(user.username)}
+            </span>
+
+            <div class="item-actions">
+
+              <button
+                class="btn alt"
+                type="button"
+                onclick="requestFriend(${user.id})"
+              >
+                フレンド申請
+              </button>
+
+            </div>
+
+          </div>
+        `
+      )
+      .join("");
+
+  } catch (error) {
+
+    alert(error.message);
+
+  }
+
+}
+
+
+window.requestFriend =
+  async function (id) {
+
+    try {
+
+      await api(
+        "/api/friends/request",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+          body:
+            JSON.stringify({
+              userId: id
+            })
+        }
+      );
+
+      alert(
+        "フレンド申請を送信しました"
+      );
+
+      await loadFriends();
+
+    } catch (error) {
+
+      alert(error.message);
+
+    }
+
+  };
+
+
+async function loadFriends() {
+
+  const friends =
+    await api(
+      "/api/friends"
+    );
+
+  if (!friends.length) {
+
+    $("#friendList")
+      .innerHTML =
+      "<div class='muted'>フレンドがいません</div>";
+
+    return;
+  }
+
+  $("#friendList")
+    .innerHTML =
+    friends.map(
+      friend => {
+
+        let action = "";
+
+        if (
+          friend.status === "pending" &&
+          friend.requester_id !== me.id
+        ) {
+
+          action = `
+            <button
+              class="btn alt"
+              type="button"
+              onclick="acceptFriend(${friend.id})"
+            >
+              承認
+            </button>
+          `;
+
+        } else if (
+          friend.status === "accepted"
+        ) {
+
+          action = `
+            <button
+              class="btn alt"
+              type="button"
+              onclick="openDM(${friend.user_id})"
+            >
+              DM
+            </button>
+          `;
+
+        } else {
+
+          action = `
+            <span class="muted">
+              申請中
+            </span>
+          `;
+
+        }
+
+        return `
+          <div class="item">
+
+            <b>
+              ${esc(
+                friend.display_name
+              )}
+            </b>
+
+            <span class="muted">
+              @${esc(
+                friend.username
+              )}
+            </span>
+
+            <div class="item-actions">
+              ${action}
+            </div>
+
+          </div>
+        `;
+
+      }
+    )
+    .join("");
+}
+
+
+window.acceptFriend =
+  async function (id) {
+
+    try {
+
+      await api(
+        "/api/friends/accept",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+          body:
+            JSON.stringify({
+              friendshipId:
+                id
+            })
+        }
+      );
+
+      await loadFriends();
+
+    } catch (error) {
+
+      alert(error.message);
+
+    }
+
+  };
+
+
+/* ================================
+   Rooms
+================================ */
+
+$("#privateRoom").addEventListener(
+  "change",
+  () => {
+
+    const isPrivate =
+      $("#privateRoom")
+        .checked;
+
+    $("#requireCode")
+      .disabled =
+      !isPrivate;
+
+    if (!isPrivate) {
+
+      $("#requireCode")
+        .checked = false;
+
+    }
+
+  }
+);
+
+$("#roomCreate").addEventListener(
+  "click",
+  async () => {
+
+    const name =
+      $("#roomName")
+        .value
+        .trim();
+
+    if (!name) {
+
+      alert(
+        "ルーム名を入力してください"
+      );
+
+      return;
+    }
+
+    const body = {
+      name,
+
+      isPrivate:
+        $("#privateRoom")
+          .checked,
+
+      requireJoinCode:
+        $("#requireCode")
+          .checked,
+
+      joinCode:
+        $("#joinCode")
+          .value
+          .trim()
+    };
+
+    try {
+
+      await api(
+        "/api/rooms",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+          body:
+            JSON.stringify(body)
+        }
+      );
+
+      $("#roomName")
+        .value = "";
+
+      $("#joinCode")
+        .value = "";
+
+      await loadRooms();
+
+      alert(
+        "ルームを作成しました"
+      );
+
+    } catch (error) {
+
+      alert(error.message);
+
+    }
+
+  }
+);
+
+
+async function loadRooms() {
+
+  const [
+    publicRooms,
+    myRooms
+  ] = await Promise.all([
+    api("/api/rooms/public"),
+    api("/api/rooms/mine")
+  ]);
+
+  if (!publicRooms.length) {
+
+    $("#publicRooms")
+      .innerHTML =
+      "<div class='muted'>公開ルームがありません</div>";
+
+  } else {
+
+    $("#publicRooms")
+      .innerHTML =
+      publicRooms
+        .map(
+          room => `
+            <div class="item">
+
+              <b>
+                ${esc(room.name)}
+              </b>
+
+              <span class="muted">
+                ${room.member_count}人
+              </span>
+
+              <div class="item-actions">
+
+                <button
+                  class="btn alt"
+                  type="button"
+                  onclick="joinRoom(
+                    ${room.id},
+                    ${room.require_join_code}
+                  )"
+                >
+                  参加
+                </button>
+
+              </div>
+
+            </div>
+          `
+        )
+        .join("");
+
+  }
+
+
+  if (!myRooms.length) {
+
+    $("#myRooms")
+      .innerHTML =
+      "<div class='muted'>参加中のルームがありません</div>";
+
+  } else {
+
+    $("#myRooms")
+      .innerHTML =
+      myRooms
+        .map(
+          room => `
+            <div class="item">
+
+              <b>
+                ${esc(room.name)}
+              </b>
+
+              ${
+                room.is_private
+                  ? `
+                    <span class="muted">
+                      非公開
+                    </span>
+                  `
+                  : ""
+              }
+
+              ${
+                room.owner_id ===
+                me.id
+                  ? `
+                    <span class="muted">
+                      ルーム管理者
+                    </span>
+                  `
+                  : ""
+              }
+
+            </div>
+          `
+        )
+        .join("");
+
+  }
+
+}
+
+
+window.joinRoom =
+  async function (
+    id,
+    requireCode
+  ) {
+
+    let code = "";
+
+    if (requireCode) {
+
+      code =
+        prompt(
+          "参加コードを入力してください"
+        ) || "";
+
+    }
+
+    try {
+
+      await api(
+        "/api/rooms/join",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+          body:
+            JSON.stringify({
+              roomId: id,
+              joinCode: code
+            })
+        }
+      );
+
+      await loadRooms();
+
+      alert(
+        "ルームに参加しました"
+      );
+
+    } catch (error) {
+
+      alert(error.message);
+
+    }
+
+  };
+
+
+/* ================================
+   Play Cat
+================================ */
+
+async function loadGames() {
+
+  try {
+
+    const games =
+      await api(
+        "/api/games"
+      );
+
+    if (!games.length) {
+
+      $("#games")
+        .innerHTML =
+        "<div class='muted'>ゲームがありません</div>";
+
+      return;
+    }
+
+    $("#games")
+      .innerHTML =
+      games
+        .map(
+          game => {
+
+            const gameUrl =
+              encodeURIComponent(
+                game.game_url
+              );
+
+            return `
+              <div class="card">
+
+                ${
+                  game.thumbnail_url
+                    ? `
+                      <img
+                        class="thumb"
+                        src="${esc(
+                          game.thumbnail_url
+                        )}"
+                        alt=""
+                      >
+                    `
+                    : ""
+                }
+
+                <div class="cardbody">
+
+                  <h3>
+                    ${esc(game.title)}
+                  </h3>
+
+                  <p class="muted">
+                    ${esc(
+                      game.description
+                    )}
+                  </p>
+
+                  <button
+                    class="btn"
+                    type="button"
+                    onclick="playGame(
+                      ${game.id},
+                      '${gameUrl}'
+                    )"
+                  >
+                    プレイ
+                  </button>
+
+                </div>
+
+              </div>
+            `;
+          }
+        )
+        .join("");
+
+  } catch (error) {
+
+    $("#games")
+      .innerHTML =
+      `<div class="error">${esc(error.message)}</div>`;
+
+  }
+
+}
+
+
+window.playGame =
+  async function (
+    id,
+    encodedUrl
+  ) {
+
+    try {
+
+      await api(
+        "/api/games/" +
+        id +
+        "/play",
+        {
+          method: "POST"
+        }
+      );
+
+      const url =
+        decodeURIComponent(
+          encodedUrl
+        );
+
+      window.open(
+        url,
+        "_blank",
+        "noopener,noreferrer"
+      );
+
+    } catch (error) {
+
+      alert(error.message);
+
+    }
+
+  };
+
+
+/* ================================
+   Admin
+================================ */
+
+function setupAdmin() {
+
+  if (!me?.is_admin) {
+    return;
+  }
+
+  $("#adminArea")
+    .innerHTML = `
+      <button
+        id="loadAdminButton"
+        class="btn"
+        type="button"
+      >
+        管理情報を読み込む
+      </button>
+
+      <div
+        id="adminData"
+        class="list"
+        style="margin-top:12px"
+      ></div>
+    `;
+
+  $("#loadAdminButton")
+    .addEventListener(
+      "click",
+      loadAdminData
+    );
+}
+
+
+async function loadAdminData() {
+
+  try {
+
+    const [
+      users,
+      rooms,
+      logs,
+      reports
+    ] = await Promise.all([
+      api("/api/admin/users"),
+      api("/api/admin/rooms"),
+      api("/api/admin/logs"),
+      api("/api/admin/reports")
+    ]);
+
+    $("#adminData")
+      .innerHTML = `
+
+        <div class="item">
+
+          <h3>ユーザー</h3>
+
+          <pre>${esc(
+            JSON.stringify(
+              users,
+              null,
+              2
+            )
+          )}</pre>
+
+        </div>
+
+        <div class="item">
+
+          <h3>ルーム</h3>
+
+          <pre>${esc(
+            JSON.stringify(
+              rooms,
+              null,
+              2
+            )
+          )}</pre>
+
+        </div>
+
+        <div class="item">
+
+          <h3>管理ログ</h3>
+
+          <pre>${esc(
+            JSON.stringify(
+              logs,
+              null,
+              2
+            )
+          )}</pre>
+
+        </div>
+
+        <div class="item">
+
+          <h3>通報</h3>
+
+          <pre>${esc(
+            JSON.stringify(
+              reports,
+              null,
+              2
+            )
+          )}</pre>
+
+        </div>
+
+      `;
+
+  } catch (error) {
+
+    $("#adminData")
+      .innerHTML =
+      `<div class="error">${esc(error.message)}</div>`;
+
+  }
+
+}
 
 </script>
+
 </body>
 </html>

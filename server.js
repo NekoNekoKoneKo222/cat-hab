@@ -64,6 +64,48 @@ const upload = multer({
 
 app.use(
   helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'"
+        ],
+
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'"
+        ],
+
+        imgSrc: [
+          "'self'",
+          "data:",
+          "https:"
+        ],
+
+        connectSrc: [
+          "'self'",
+          "https://www.googleapis.com",
+          "https://*.youtube.com",
+          "wss:",
+          "ws:"
+        ],
+
+        frameSrc: [
+          "'self'",
+          "https://www.youtube.com",
+          "https://www.youtube-nocookie.com"
+        ],
+
+        mediaSrc: [
+          "'self'",
+          "https:",
+          "blob:"
+        ]
+      }
+    },
+
     crossOriginResourcePolicy: {
       policy: "cross-origin"
     }

@@ -92,16 +92,29 @@ async function getUser(id) {
 }
 
 async function isAdmin(id) {
-  const u = await getUser(id);
-  if (!u) return false;
-  if (u.is_admin) return true;
-  try {
-    const raw = await fs.promises.readFile(path.join(__dirname, "admin.txt"), "utf8");
-    return raw.split(/\r?\n/).map(x => x.trim().toLowerCase()).filter(Boolean)
-      .includes(String(u.username).toLowerCase());
-  } catch {
+  const user = await getUser(id);
+
+  if (!user) {
     return false;
   }
+
+  // PostgreSQL側でAdminになっている場合
+  if (user.is_admin === true) {
+    return true;
+  }
+
+  // Render Environment Variable
+  // ADMIN_USERS=akio123,nekoadmin
+  const adminUsers = String(
+    process.env.ADMIN_USERS || ""
+  )
+    .split(",")
+    .map(username => username.trim().toLowerCase())
+    .filter(Boolean);
+
+  return adminUsers.includes(
+    String(user.username).toLowerCase()
+  );
 }
 
 async function roomOwner(userId, roomId) {

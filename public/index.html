@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cat Hub</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#f6f2fb;color:#292438}
+button,input{font:inherit}.hidden{display:none!important}.layout{min-height:100vh;display:flex}.side{width:235px;background:#ffffff;border-right:1px solid #e4dff0;padding:18px;display:flex;flex-direction:column;gap:8px}.brand{font-weight:800;font-size:22px;padding:8px 4px 20px;color:#6e55a7}.nav{border:0;background:transparent;text-align:left;padding:12px;border-radius:12px;cursor:pointer}.nav:hover,.nav.active{background:#eee7fb;color:#684ca1}.main{flex:1}.top{height:70px;background:#fff;border-bottom:1px solid #e4dff0;display:flex;align-items:center;justify-content:space-between;padding:0 24px}.page{padding:24px}.panel{background:#fff;border:1px solid #e4dff0;border-radius:18px;padding:18px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}.card{background:#fff;border:1px solid #e4dff0;border-radius:16px;overflow:hidden}.thumb{width:100%;aspect-ratio:16/9;object-fit:cover;background:#eee}.cardbody{padding:13px}.btn{border:0;background:#7659ad;color:white;padding:10px 14px;border-radius:10px;cursor:pointer}.btn.alt{background:#eee7fb;color:#614895}.input{border:1px solid #dcd5e8;border-radius:11px;padding:11px;width:100%}.row{display:flex;gap:10px;align-items:center}.search{max-width:650px}.muted{color:#7d768b}.list{display:grid;gap:10px}.item{padding:13px;border:1px solid #e4dff0;border-radius:12px;background:#fff}.auth{min-height:100vh;display:grid;place-items:center}.authbox{width:min(430px,92vw);background:#fff;padding:28px;border-radius:20px;border:1px solid #e4dff0;box-shadow:0 15px 45px #5c4a7720}.chatwrap{display:grid;grid-template-columns:280px 1fr;gap:14px;height:calc(100vh - 120px)}.messages{height:calc(100% - 70px);overflow:auto;padding:12px}.msg{margin:9px 0}.bubble{display:inline-block;max-width:75%;padding:10px 13px;border-radius:14px;background:#eeeaf4}.mine{text-align:right}.mine .bubble{background:#7659ad;color:#fff}.bubble img{max-width:240px;border-radius:10px;display:block;margin-top:7px}.composer{display:flex;gap:8px;border-top:1px solid #e4dff0;padding:10px}.small{font-size:13px}.error{color:#b6384b;min-height:20px}iframe.game{width:100%;height:75vh;border:0;border-radius:16px;background:#000}
+@media(max-width:800px){.side{width:70px;padding:8px}.brand{font-size:0}.brand:after{content:"C";font-size:24px}.nav{font-size:0;text-align:center}.nav::first-letter{font-size:20px}.chatwrap{grid-template-columns:1fr}.top{padding:0 14px}}
+</style>
+</head>
+<body>
+<div id="auth" class="auth">
+ <div class="authbox">
+  <h1>Cat Hub</h1>
+  <p class="muted">Cat Tube / Cloud Cat / Play Cat</p>
+  <div class="row"><button id="loginTab" class="btn alt">ログイン</button><button id="signupTab" class="btn alt">新規登録</button></div>
+  <form id="authForm">
+   <input id="username" class="input" placeholder="ユーザー名" required>
+   <input id="displayName" class="input hidden" placeholder="表示名">
+   <input id="password" class="input" type="password" placeholder="パスワード（8文字以上）" required>
+   <label id="termsRow" class="small hidden"><input id="terms" type="checkbox"> 利用規約に同意する</label>
+   <button class="btn" style="width:100%">開始</button>
+  </form>
+  <div id="authError" class="error"></div>
+ </div>
+</div>
+
+<div id="app" class="layout hidden">
+ <aside class="side">
+  <div class="brand">Cat Hub</div>
+  <button class="nav active" data-panel="tube">Cat Tube</button>
+  <button class="nav" data-panel="cloud">Cloud Cat</button>
+  <button class="nav" data-panel="friends">フレンド</button>
+  <button class="nav" data-panel="rooms">ルーム</button>
+  <button class="nav" data-panel="play">Play Cat</button>
+  <button class="nav" data-panel="admin">管理</button>
+  <button class="nav" data-panel="settings">設定</button>
+  <div style="margin-top:auto"><span id="me"></span><br><button id="logout" class="nav">ログアウト</button></div>
+ </aside>
+ <main class="main">
+  <header class="top"><strong id="title">Cat Tube</strong><span id="topStatus" class="muted"></span></header>
+  <div class="page">
+   <section id="tube" class="panel">
+    <div class="row search"><input id="tubeSearch" class="input" placeholder="YouTubeを検索"><button id="tubeSearchBtn" class="btn">検索</button></div>
+    <div id="tubeResults" class="grid" style="margin-top:18px"></div>
+   </section>
+
+   <section id="cloud" class="panel hidden">
+    <div class="chatwrap">
+      <div class="list"><button id="refreshDM" class="btn alt">DM更新</button><div id="dmList"></div></div>
+      <div class="panel" style="padding:0;overflow:hidden"><div id="dmMessages" class="messages"><div class="muted">DMを選択してください</div></div><form id="dmForm" class="composer hidden"><input id="dmInput" class="input" placeholder="メッセージ"><input id="dmImage" type="file" accept="image/*" hidden><label for="dmImage" class="btn alt">画像</label><button class="btn">送信</button></form></div>
+    </div>
+   </section>
+
+   <section id="friends" class="panel hidden">
+    <div class="row"><input id="userSearch" class="input" placeholder="ユーザー検索"><button id="userSearchBtn" class="btn">検索</button></div>
+    <h3>検索結果</h3><div id="userResults" class="list"></div><h3>フレンド</h3><div id="friendList" class="list"></div>
+   </section>
+
+   <section id="rooms" class="panel hidden">
+    <form id="roomForm" class="row"><input id="roomName" class="input" placeholder="ルーム名" required><label><input id="privateRoom" type="checkbox"> 非公開</label><label><input id="requireCode" type="checkbox"> 参加コード</label><input id="joinCode" class="input" placeholder="参加コード"></form>
+    <button id="roomCreate" class="btn" style="margin:10px 0">ルーム作成</button>
+    <h3>公開ルーム</h3><div id="publicRooms" class="list"></div>
+    <h3>参加中のルーム / 管理ルーム</h3><div id="myRooms" class="list"></div>
+   </section>
+
+   <section id="play" class="panel hidden">
+    <h2>Play Cat</h2><div id="games" class="grid"></div>
+   </section>
+
+   <section id="admin" class="panel hidden">
+    <h2>管理</h2><div id="adminArea" class="list"><div class="muted">Adminのみ利用できます。</div></div>
+   </section>
+
+   <section id="settings" class="panel hidden">
+    <h2>設定</h2>
+    <form id="profileForm" class="list"><input id="profileName" class="input" placeholder="表示名"><input id="profileBio" class="input" placeholder="自己紹介"><button class="btn">保存</button></form>
+    <hr><form id="passwordForm" class="list"><input id="newPassword" class="input" type="password" placeholder="新しいパスワード"><button class="btn">パスワード変更</button></form>
+   </section>
+  </div>
+ </main>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+let mode="login",me=null,currentDm=null,currentRoom=null,socket=null;
+const $=s=>document.querySelector(s);
+const $$=s=>document.querySelectorAll(s);
+const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+async function api(url,opt={}){const r=await fetch(url,opt);const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||"エラー");return d}
+
+$("#loginTab").onclick=()=>{mode="login";$("#displayName").classList.add("hidden");$("#termsRow").classList.add("hidden")};
+$("#signupTab").onclick=()=>{mode="signup";$("#displayName").classList.remove("hidden");$("#termsRow").classList.remove("hidden")};
+$("#authForm").onsubmit=async e=>{e.preventDefault();$("#authError").textContent="";
+ try{
+  const body={username:$("#username").value,password:$("#password").value,displayName:$("#displayName").value,termsAccepted:$("#terms").checked};
+  me=(await api("/api/auth/"+(mode==="signup"?"signup":"login"),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})).user;start();
+ }catch(err){$("#authError").textContent=err.message}
+};
+async function start(){
+ $("#auth").classList.add("hidden");$("#app").classList.remove("hidden");$("#me").textContent=me.display_name||me.username;
+ socket=io();socket.on("message",()=>currentDm&&loadDM(currentDm));socket.on("notification",()=>loadFriends());
+ await loadGames();await loadFriends();await loadRooms();
+ if(me.is_admin)$("#adminArea").innerHTML='<button class="btn" id="loadAdmin">管理データを読み込む</button><div id="adminData"></div>';
+}
+(async()=>{try{me=await api("/api/me");start()}catch{}})();
+
+$$(".nav").forEach(b=>b.onclick=async()=>{const panel=b.dataset.panel;if(!panel)return;$$(".nav").forEach(x=>x.classList.toggle("active",x===b));["tube","cloud","friends","rooms","play","admin","settings"].forEach(id=>$("#"+id).classList.toggle("hidden",id!==panel));$("#title").textContent=b.textContent.trim();if(panel==="tube"){}if(panel==="play")loadGames();if(panel==="rooms")loadRooms();if(panel==="cloud")loadDMRooms();if(panel==="settings")loadMe();if(panel==="admin"&&me.is_admin)setupAdmin()});
+$("#logout").onclick=async()=>{await api("/api/auth/logout",{method:"POST"});location.reload()};
+
+async function loadMe(){const u=await api("/api/me");$("#profileName").value=u.display_name||"";$("#profileBio").value=u.bio||""}
+$("#profileForm").onsubmit=async e=>{e.preventDefault();await api("/api/me",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({displayName:$("#profileName").value,bio:$("#profileBio").value})});alert("保存しました")};
+$("#passwordForm").onsubmit=async e=>{e.preventDefault();await api("/api/me/password",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({password:$("#newPassword").value})});$("#newPassword").value="";alert("変更しました")};
+
+$("#tubeSearchBtn").onclick=searchYouTube;
+$("#tubeSearch").addEventListener("keydown",e=>e.key==="Enter"&&searchYouTube());
+async function searchYouTube(){const q=$("#tubeSearch").value.trim();if(!q)return;$("#tubeResults").innerHTML="<div class='muted'>検索中...</div>";try{const items=await api("/api/youtube/search?q="+encodeURIComponent(q));$("#tubeResults").innerHTML=items.map(x=>{const id=x.id.videoId;return `<div class="card"><img class="thumb" src="${esc(x.snippet.thumbnails?.high?.url||x.snippet.thumbnails?.medium?.url||"")}"><div class="cardbody"><b>${esc(x.snippet.title)}</b><p class="muted">${esc(x.snippet.channelTitle)}</p><button class="btn" onclick="watch('${id}')">見る</button></div></div>`}).join("")}catch(e){$("#tubeResults").innerHTML="<div class='error'>"+esc(e.message)+"</div>"}}
+window.watch=async id=>{const d=await api("/api/youtube/video/"+id);if(!d)return;$("#tubeResults").innerHTML=`<div style="grid-column:1/-1"><h2>${esc(d.snippet.title)}</h2><div style="position:relative;padding-top:56.25%"><iframe src="https://www.youtube.com/embed/${encodeURIComponent(id)}" style="position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:16px" allowfullscreen></iframe></div><div style="margin-top:12px"><button class="btn alt" onclick="getStream('${id}')">Direct Stream情報を取得</button><a class="btn alt" target="_blank" href="https://www.youtube.com/watch?v=${encodeURIComponent(id)}">YouTubeで開く</a></div><div id="streamInfo"></div></div>`};
+window.getStream=async id=>{try{const d=await api("/api/youtube/stream?url="+encodeURIComponent("https://www.youtube.com/watch?v="+id));$("#streamInfo").innerHTML=`<p class="muted">ストリームURLを取得しました。URLは一時的な場合があります。</p><video controls style="width:100%;max-height:70vh;margin-top:10px" src="${esc(d.url)}"></video>`}catch(e){$("#streamInfo").innerHTML='<div class="error">'+esc(e.message)+'</div>'}};
+
+async function loadDMRooms(){const rooms=await api("/api/dm/rooms");$("#dmList").innerHTML=rooms.map(r=>`<div class="item" onclick="openDM(${r.room_id})"><b>${esc(r.display_name)}</b><div class="muted">${esc(r.last_message||"新しいDM")}</div></div>`).join("")||"<div class='muted'>DMがありません</div>"}
+$("#refreshDM").onclick=loadDMRooms;
+window.openDM=async id=>{const r=await api("/api/dm/open",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({userId:id})});currentDm=r.roomId;await loadDMRooms();socket.emit("joinRoom",currentDm);$("#dmForm").classList.remove("hidden");loadDM(currentDm)};
+async function loadDM(id){const msgs=await api("/api/dm/"+id);$("#dmMessages").innerHTML=msgs.map(m=>`<div class="msg ${m.sender_id===me.id?"mine":""}"><div class="small muted">${esc(m.display_name)}</div><span class="bubble">${m.deleted?"[削除済み]":esc(m.content)}${m.image_url?`<img src="${esc(m.image_url)}">`:""}</span></div>`).join("");$("#dmMessages").scrollTop=$("#dmMessages").scrollHeight}
+$("#dmForm").onsubmit=async e=>{e.preventDefault();const fd=new FormData();fd.append("content",$("#dmInput").value);if($("#dmImage").files[0])fd.append("image",$("#dmImage").files[0]);await api("/api/dm/"+currentDm,{method:"POST",body:fd});$("#dmInput").value="";$("#dmImage").value="";loadDM(currentDm);loadDMRooms()};
+
+$("#userSearchBtn").onclick=async()=>{const u=await api("/api/users/search?q="+encodeURIComponent($("#userSearch").value));$("#userResults").innerHTML=u.map(x=>`<div class="item"><b>${esc(x.display_name)}</b> <span class="muted">@${esc(x.username)}</span><button class="btn alt" style="float:right" onclick="requestFriend(${x.id})">フレンド申請</button></div>`).join("")};
+window.requestFriend=async id=>{try{await api("/api/friends/request",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({userId:id})});alert("申請しました")}catch(e){alert(e.message)}};
+async function loadFriends(){const f=await api("/api/friends");$("#friendList").innerHTML=f.map(x=>`<div class="item"><b>${esc(x.display_name)}</b> <span class="muted">@${esc(x.username)}</span> ${x.status==="pending"&&x.requester_id!==me.id?`<button class="btn alt" onclick="acceptFriend(${x.id})">承認</button>`:`<button class="btn alt" onclick="openDM(${x.user_id})">DM</button>`}</div>`).join("")||"<div class='muted'>フレンドがいません</div>"}
+window.acceptFriend=async id=>{await api("/api/friends/accept",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({friendshipId:id})});loadFriends()};
+
+$("#roomCreate").onclick=async()=>{const body={name:$("#roomName").value,isPrivate:$("#privateRoom").checked,requireJoinCode:$("#requireCode").checked,joinCode:$("#joinCode").value};try{await api("/api/rooms",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});$("#roomName").value="";loadRooms()}catch(e){alert(e.message)}};
+async function loadRooms(){const [p,m]=await Promise.all([api("/api/rooms/public"),api("/api/rooms/mine")]);$("#publicRooms").innerHTML=p.map(r=>`<div class="item"><b>${esc(r.name)}</b><span class="muted"> ${r.member_count}人</span><button class="btn alt" style="float:right" onclick="joinRoom(${r.id},${r.require_join_code})">参加</button></div>`).join("")||"<div class='muted'>公開ルームがありません</div>";$("#myRooms").innerHTML=m.map(r=>`<div class="item"><b>${esc(r.name)}</b> ${r.is_private?"<span class='muted'>非公開</span>":""} ${r.owner_id===me.id?"<span class='muted'>管理者</span>":""}</div>`).join("")}
+window.joinRoom=async(id,required)=>{const code=required?prompt("参加コードを入力してください"):"";try{await api("/api/rooms/join",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({roomId:id,joinCode:code})});alert("参加しました");loadRooms()}catch(e){alert(e.message)}};
+
+async function loadGames(){try{const gs=await api("/api/games");$("#games").innerHTML=gs.map(g=>`<div class="card">${g.thumbnail_url?`<img class="thumb" src="${esc(g.thumbnail_url)}">`:""}<div class="cardbody"><h3>${esc(g.title)}</h3><p class="muted">${esc(g.description)}</p><button class="btn" onclick="playGame(${g.id},'${encodeURIComponent(g.game_url)}')">プレイ</button></div></div>`).join("")}catch(e){$("#games").innerHTML="<div class='error'>"+esc(e.message)+"</div>"}}
+window.playGame=async(id,url)=>{await api("/api/games/"+id+"/play",{method:"POST"});const u=decodeURIComponent(url);if(/^https:\\/\\/unityroom\\.com\\//i.test(u)){window.open(u,"_blank","noopener")}else{window.open(u,"_blank","noopener")}};
+
+function setupAdmin(){if(!me.is_admin)return;$("#adminArea").innerHTML='<button class="btn" onclick="loadAdminAll()">管理情報を読み込む</button><div id="adminData" class="list" style="margin-top:12px"></div>'}
+window.loadAdminAll=async()=>{const [users,rooms,logs]=await Promise.all([api("/api/admin/users"),api("/api/admin/rooms"),api("/api/admin/logs")]);$("#adminData").innerHTML=`<div class="item"><b>ユーザー</b><pre>${esc(JSON.stringify(users,null,2))}</pre></div><div class="item"><b>ルーム</b><pre>${esc(JSON.stringify(rooms,null,2))}</pre></div><div class="item"><b>管理ログ</b><pre>${esc(JSON.stringify(logs,null,2))}</pre></div>`}
+$("#privateRoom").onchange=()=>{$("#requireCode").disabled=!$("#privateRoom").checked;if(!$("#privateRoom").checked){$("#requireCode").checked=false}};
+
+</script>
+</body>
+</html>

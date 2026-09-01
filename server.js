@@ -21,6 +21,8 @@ const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
 
+app.set("trust proxy", 1);
+
 if (!process.env.DATABASE_URL) {
   console.error("DATABASE_URL is missing");
   process.exit(1);

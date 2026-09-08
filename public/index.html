@@ -34,6 +34,7 @@
     <button class="nav" data-panel="friends" type="button">フレンド</button>
     <button class="nav" data-panel="rooms" type="button">ルーム</button>
     <button class="nav" data-panel="play" type="button">Play Cat</button>
+    <button class="nav" data-panel="proxy" type="button">プロキシ</button>
     <button id="adminNav" class="nav hidden" data-panel="admin" type="button">管理</button>
     <button class="nav" data-panel="settings" type="button">設定</button>
     <div class="sidebar-bottom">
@@ -133,6 +134,17 @@
       <section id="play" class="panel hidden">
         <h2>Play Cat</h2>
         <div id="games" class="grid"></div>
+      </section>
+
+      <section id="proxy" class="panel hidden">
+        <h2>プロキシ</h2>
+        <p class="muted">登録済みの許可ホストから画像・音声・動画・JSON・テキストなどを取得します。</p>
+        <div class="toolbar proxy-toolbar">
+          <input id="proxyUrl" class="input" type="url" placeholder="https://example.com/resource.png">
+          <button id="proxyFetchBtn" class="btn" type="button">取得</button>
+        </div>
+        <div id="proxyError" class="error"></div>
+        <div id="proxyResult" class="proxy-result muted">プロキシURLを入力してください。</div>
       </section>
 
       <section id="admin" class="panel hidden">

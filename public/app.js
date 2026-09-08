@@ -18,7 +18,7 @@ async function api(url, options = {}) {
 }
 
 function setPanel(name) {
-  const ids = ["tube","cloud","friends","rooms","play","admin","settings"];
+  const ids = ["tube","cloud","friends","rooms","play","proxy","admin","settings"];
   ids.forEach(id => $("#" + id).classList.toggle("hidden", id !== name));
   $$(".nav[data-panel]").forEach(b => b.classList.toggle("active", b.dataset.panel === name));
   const button = $(`.nav[data-panel="${name}"]`);
@@ -351,6 +351,71 @@ async function unban(userId) {
   await api("/api/rooms/" + currentRoom + "/bans/" + userId, {method:"DELETE"});
   await loadBans(currentRoom);
 }
+
+/* Proxy */
+function renderProxyText(text, type, finalUrl) {
+  const box = $("#proxyResult");
+  const safeText = esc(text);
+  box.classList.remove("muted");
+  box.innerHTML = `<div class="proxy-meta">${esc(type)}<br>${esc(finalUrl)}</div><pre>${safeText}</pre>`;
+}
+
+async function fetchProxyResource() {
+  const target = $("#proxyUrl").value.trim();
+  if (!target) return;
+  $("#proxyError").textContent = "";
+  $("#proxyResult").classList.add("muted");
+  $("#proxyResult").textContent = "取得中...";
+  try {
+    const r = await fetch("/api/proxy?url=" + encodeURIComponent(target), { credentials: "same-origin" });
+    const type = r.headers.get("content-type") || "application/octet-stream";
+    if (!r.ok) {
+      const d = await r.json().catch(() => ({}));
+      throw new Error(d.error || `HTTP ${r.status}`);
+    }
+    const blob = await r.blob();
+    const finalUrl = r.headers.get("x-cat-hub-proxy-url") || target;
+    const box = $("#proxyResult");
+    box.classList.remove("muted");
+    box.innerHTML = `<div class="proxy-meta">${esc(type)}<br>${esc(finalUrl)}</div>`;
+
+    if (type.startsWith("image/")) {
+      const img = document.createElement("img");
+      img.alt = "Proxy result";
+      img.src = URL.createObjectURL(blob);
+      box.appendChild(img);
+    } else if (type.startsWith("video/")) {
+      const video = document.createElement("video");
+      video.controls = true; video.playsInline = true;
+      video.src = URL.createObjectURL(blob);
+      box.appendChild(video);
+    } else if (type.startsWith("audio/")) {
+      const audio = document.createElement("audio");
+      audio.controls = true;
+      audio.src = URL.createObjectURL(blob);
+      box.appendChild(audio);
+    } else if (type.startsWith("text/") || type.includes("json") || type.includes("xml") || type.includes("javascript")) {
+      renderProxyText(await blob.text(), type, finalUrl);
+    } else {
+      const link = document.createElement("a");
+      link.className = "btn alt";
+      link.href = URL.createObjectURL(blob);
+      link.download = "proxy-resource";
+      link.textContent = "取得したファイルを保存";
+      box.appendChild(link);
+      const note = document.createElement("p");
+      note.className = "muted";
+      note.textContent = "この形式はブラウザ上でプレビューせず保存できます。";
+      box.appendChild(note);
+    }
+  } catch (e) {
+    $("#proxyResult").classList.add("muted");
+    $("#proxyResult").textContent = "プロキシURLを入力してください。";
+    $("#proxyError").textContent = e.message;
+  }
+}
+$("#proxyFetchBtn").onclick = () => fetchProxyResource();
+$("#proxyUrl").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); fetchProxyResource(); } };
 
 /* Play Cat */
 async function loadGames() {

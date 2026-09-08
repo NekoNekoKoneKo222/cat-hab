@@ -3,6 +3,8 @@ const express = require("express");
 const http = require("http");
 const path = require("path");
 const fs = require("fs");
+const dns = require("dns").promises;
+const net = require("net");
 const { execFile } = require("child_process");
 const util = require("util");
 const session = require("express-session");
@@ -86,35 +88,148 @@ app.use(sessionMiddleware);
 const auth = (req, res, next) =>
   req.session.userId ? next() : res.status(401).json({ error: "ログインが必要です" });
 
+const PROXY_MAX_BYTES = Math.min(Math.max(Number(process.env.PROXY_MAX_BYTES) || 8 * 1024 * 1024, 64 * 1024), 32 * 1024 * 1024);
+const PROXY_TIMEOUT_MS = Math.min(Math.max(Number(process.env.PROXY_TIMEOUT_MS) || 10000, 1000), 30000);
+const PROXY_MAX_REDIRECTS = 3;
+
+function getProxyAllowlist() {
+  return String(process.env.ALLOWED_PROXY_HOSTS || "")
+    .split(",")
+    .map(v => v.trim().toLowerCase())
+    .filter(Boolean)
+    .map(v => v.replace(/^https?:\/\//, "").split("/")[0].replace(/:\d+$/, ""));
+}
+
+function hostMatchesAllowlist(hostname, allowlist) {
+  const host = String(hostname || "").toLowerCase().replace(/\.$/, "");
+  return allowlist.some(rule => {
+    const r = rule.replace(/^\.+/, "");
+    return host === r || host.endsWith("." + r);
+  });
+}
+
+function isPrivateOrLocalIp(hostname) {
+  const ipType = net.isIP(hostname);
+  if (ipType === 4) {
+    const [a,b,c,d] = hostname.split(".").map(Number);
+    return a === 10 || a === 127 || (a === 169 && b === 254) ||
+      (a === 172 && b >= 16 && b <= 31) ||
+      (a === 192 && b === 168) ||
+      (a === 0) ||
+      (a === 100 && b >= 64 && b <= 127);
+  }
+  if (ipType === 6) {
+    const h = hostname.toLowerCase();
+    return h === "::" || h === "::1" || h.startsWith("fc") || h.startsWith("fd") ||
+      h.startsWith("fe8") || h.startsWith("fe9") || h.startsWith("fea") || h.startsWith("feb") ||
+      h.startsWith("::ffff:127.") || h.startsWith("::ffff:10.") || h.startsWith("::ffff:192.168.") ||
+      h.startsWith("::ffff:169.254.");
+  }
+  return false;
+}
+
+async function assertSafeProxyTarget(urlString, allowlist) {
+  let u;
+  try { u = new URL(urlString); } catch { throw new Error("URLが不正です"); }
+  if (!/^https?:$/.test(u.protocol)) throw new Error("プロキシはHTTP/HTTPSのみ対応しています");
+  if (u.username || u.password) throw new Error("ユーザー名・パスワード付きURLは使用できません");
+  const host = u.hostname.toLowerCase();
+  if (!host || host === "localhost" || host.endsWith(".localhost") || host.endsWith(".local") || isPrivateOrLocalIp(host)) {
+    throw new Error("ローカル・プライベートネットワークへの接続は拒否されます");
+  }
+  if (!hostMatchesAllowlist(host, allowlist)) {
+    throw new Error("このホストはALLOWED_PROXY_HOSTSに登録されていません");
+  }
+  if (net.isIP(host)) return u;
+  const addresses = await dns.lookup(host, { all: true, verbatim: true });
+  if (!addresses.length || addresses.some(x => isPrivateOrLocalIp(x.address))) {
+    throw new Error("対象ホストがローカル・プライベートIPへ解決されるため拒否されました");
+  }
+  return u;
+}
+
+async function fetchProxyResource(startUrl) {
+  const allowlist = getProxyAllowlist();
+  if (!allowlist.length) throw new Error("ALLOWED_PROXY_HOSTS が設定されていません");
+  let current = await assertSafeProxyTarget(startUrl, allowlist);
+
+  for (let redirectCount = 0; redirectCount <= PROXY_MAX_REDIRECTS; redirectCount++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), PROXY_TIMEOUT_MS);
+    let response;
+    try {
+      response = await fetch(current, {
+        method: "GET",
+        redirect: "manual",
+        signal: controller.signal,
+        headers: {
+          "user-agent": "Cat-Hub-Proxy/1.0",
+          "accept": "text/html,text/plain,text/css,application/json,image/*,audio/*,video/*,*/*;q=0.5"
+        }
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+
+    if ([301,302,303,307,308].includes(response.status)) {
+      if (redirectCount >= PROXY_MAX_REDIRECTS) throw new Error("リダイレクト回数が多すぎます");
+      const location = response.headers.get("location");
+      if (!location) throw new Error("リダイレクト先がありません");
+      current = await assertSafeProxyTarget(new URL(location, current).toString(), allowlist);
+      continue;
+    }
+
+    const length = Number(response.headers.get("content-length") || 0);
+    if (length > PROXY_MAX_BYTES) throw new Error("レスポンスが大きすぎます");
+    if (!response.ok) throw new Error(`対象サーバーがHTTP ${response.status}を返しました`);
+
+    const chunks = [];
+    let total = 0;
+    if (response.body) {
+      const reader = response.body.getReader();
+      try {
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          total += value.byteLength;
+          if (total > PROXY_MAX_BYTES) {
+            await reader.cancel();
+            throw new Error("レスポンスが大きすぎます");
+          }
+          chunks.push(Buffer.from(value));
+        }
+      } finally {
+        reader.releaseLock();
+      }
+    }
+
+    const contentType = response.headers.get("content-type") || "application/octet-stream";
+    return {
+      body: Buffer.concat(chunks),
+      contentType,
+      finalUrl: current.toString(),
+      status: response.status
+    };
+  }
+  throw new Error("プロキシ処理に失敗しました");
+}
+
 async function getUser(id) {
   const r = await pool.query("SELECT * FROM users WHERE id=$1", [id]);
   return r.rows[0] || null;
 }
 
 async function isAdmin(id) {
-  const user = await getUser(id);
-
-  if (!user) {
+  const u = await getUser(id);
+  if (!u) return false;
+  if (u.is_admin) return true;
+  try {
+    const raw = await fs.promises.readFile(path.join(__dirname, "admin.txt"), "utf8");
+    return raw.split(/\r?\n/).map(x => x.trim().toLowerCase()).filter(Boolean)
+      .includes(String(u.username).toLowerCase());
+  } catch {
     return false;
   }
-
-  // PostgreSQL側でAdminになっている場合
-  if (user.is_admin === true) {
-    return true;
-  }
-
-  // Render Environment Variable
-  // ADMIN_USERS=akio123,nekoadmin
-  const adminUsers = String(
-    process.env.ADMIN_USERS || ""
-  )
-    .split(",")
-    .map(username => username.trim().toLowerCase())
-    .filter(Boolean);
-
-  return adminUsers.includes(
-    String(user.username).toLowerCase()
-  );
 }
 
 async function roomOwner(userId, roomId) {
@@ -868,6 +983,37 @@ app.get("/api/youtube/stream", async (req, res) => {
     return res.status(500).json({
       error: "ストリーム取得処理でエラーが発生しました"
     });
+  }
+});
+
+/* Safe resource proxy */
+app.get("/api/proxy", auth, async (req, res) => {
+  const target = String(req.query.url || "").trim();
+  if (!target) return res.status(400).json({ error: "URLを指定してください" });
+
+  try {
+    const result = await fetchProxyResource(target);
+    const originalType = result.contentType.toLowerCase();
+    // Do not execute arbitrary remote HTML/JavaScript with the Cat Hub origin.
+    const safePreviewType = originalType.startsWith("text/html") ||
+      originalType.includes("javascript") ||
+      originalType.includes("ecmascript")
+      ? "text/plain; charset=utf-8"
+      : result.contentType;
+
+    res.status(result.status);
+    res.setHeader("Content-Type", safePreviewType);
+    res.setHeader("Content-Length", String(result.body.length));
+    res.setHeader("X-Cat-Hub-Proxy-URL", result.finalUrl);
+    res.setHeader("Cache-Control", "no-store");
+    res.setHeader("Content-Security-Policy", "sandbox; default-src 'none'; img-src data: blob: https:; media-src data: blob: https:; style-src 'unsafe-inline';");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("Content-Disposition", safePreviewType.startsWith("text/") ? "inline" : "attachment");
+    return res.end(result.body);
+  } catch (e) {
+    console.error("proxy error:", e.message || e);
+    const status = /ALLOWED_PROXY_HOSTS|ローカル|プライベート|URLが不正|ユーザー名|HTTP|大きすぎ|リダイレクト/.test(String(e.message)) ? 400 : 502;
+    return res.status(status).json({ error: e.name === "AbortError" ? "対象サーバーへの接続がタイムアウトしました" : (e.message || "プロキシに失敗しました") });
   }
 });
 

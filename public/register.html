@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cat Hub - 新規登録</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="ch-auth-wrap">
+    <div class="ch-auth-card">
+      <h1>Cat Hub 新規登録</h1>
+      <div id="ch-alert"></div>
+      <form class="ch-form" id="register-form">
+        <div class="ch-field">
+          <label for="username">ユーザー名（英数字・アンダースコア、3〜20文字）</label>
+          <input id="username" name="username" autocomplete="username" required />
+        </div>
+        <div class="ch-field">
+          <label for="displayName">表示名</label>
+          <input id="displayName" name="displayName" autocomplete="nickname" />
+        </div>
+        <div class="ch-field">
+          <label for="password">パスワード（8文字以上）</label>
+          <input id="password" name="password" type="password" autocomplete="new-password" required minlength="8" />
+        </div>
+        <button class="ch-btn" type="submit">登録する</button>
+      </form>
+      <p style="text-align:center; margin-top:16px; font-size:0.88rem; color:var(--ch-text-muted);">
+        既にアカウントをお持ちの場合は <a href="/login.html">ログイン</a>
+      </p>
+    </div>
+  </div>
+  <script>
+    const form = document.getElementById('register-form');
+    const alertBox = document.getElementById('ch-alert');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.innerHTML = '';
+      const body = {
+        username: document.getElementById('username').value.trim(),
+        displayName: document.getElementById('displayName').value.trim(),
+        password: document.getElementById('password').value,
+      };
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alertBox.innerHTML = '<div class="ch-alert error">' + (data.error || '登録に失敗しました') + '</div>';
+        return;
+      }
+      window.location.href = '/';
+    });
+  </script>
+</body>
+</html>

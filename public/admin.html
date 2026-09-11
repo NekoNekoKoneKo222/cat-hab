@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cat Hub - Admin</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body data-require-auth="true" data-require-admin="true">
+  <div class="ch-mobile-topbar">
+    <button id="ch-mobile-toggle" type="button">メニュー</button>
+    <strong>Cat Hub</strong>
+    <span></span>
+  </div>
+  <div class="ch-layout">
+    <nav class="ch-nav" id="ch-nav-root"></nav>
+    <main class="ch-main">
+      <h1 class="ch-page-title">Admin</h1>
+      <p class="ch-page-sub">システム設定の確認ができます。秘密情報（APIキー等の値）はここには表示されません。</p>
+
+      <div class="ch-card">
+        <h3 style="margin-top:0; color:var(--ch-purple-dark);">Web VM 設定</h3>
+        <div id="vm-settings">読み込み中...</div>
+      </div>
+
+      <div class="ch-card">
+        <h3 style="margin-top:0; color:var(--ch-purple-dark);">Proxy 設定</h3>
+        <div id="proxy-settings">読み込み中...</div>
+      </div>
+
+      <div class="ch-card">
+        <h3 style="margin-top:0; color:var(--ch-purple-dark);">Cat Tube 設定</h3>
+        <div id="youtube-settings">読み込み中...</div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/nav.js"></script>
+  <script>
+    async function loadSettings() {
+      const res = await fetch('/api/admin/settings', { credentials: 'same-origin' });
+      if (!res.ok) return;
+      const data = await res.json();
+
+      document.getElementById('vm-settings').innerHTML =
+        '<p><strong>有効:</strong> ' + (data.vm.enabled ? 'はい' : 'いいえ') + '</p>' +
+        '<p><strong>ISO URL:</strong> ' + CatHub.escapeHtml(data.vm.isoUrl || '(未設定)') + '</p>' +
+        '<p><strong>メモリ上限:</strong> ' + data.vm.memoryMb + ' MB</p>' +
+        '<p><strong>CPU数:</strong> ' + data.vm.cpuCount + '</p>' +
+        '<p><strong>ISO最大サイズ:</strong> ' + data.vm.maxIsoSizeMb + ' MB</p>' +
+        '<p><strong>VM用Proxy許可リスト件数:</strong> ' + data.vm.networkProxyAllowlistCount + '</p>';
+
+      document.getElementById('proxy-settings').innerHTML =
+        '<p><strong>許可ホスト数:</strong> ' + data.proxy.allowedHostsCount + '</p>';
+
+      document.getElementById('youtube-settings').innerHTML =
+        '<p><strong>APIキー設定済み:</strong> ' + (data.youtube.apiKeyConfigured ? 'はい' : 'いいえ') + '</p>';
+    }
+    document.addEventListener('cathub:user-loaded', (e) => {
+      if (e.detail.user && e.detail.user.isAdmin) loadSettings();
+    });
+  </script>
+</body>
+</html>

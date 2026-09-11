@@ -1,10 +1,14 @@
-FROM node:22-bookworm-slim
-RUN apt-get update && apt-get install -y --no-install-recommends python3 python3-pip ca-certificates ffmpeg curl && rm -rf /var/lib/apt/lists/*
-RUN python3 -m pip install --break-system-packages -U "yt-dlp[default]==2026.08.19"
+FROM node:20-slim
+
 WORKDIR /app
-COPY package*.json ./
-RUN npm install --omit=dev
+
+COPY package.json package-lock.json* ./
+RUN npm install --omit=dev --no-audit --no-fund
+
 COPY . .
+
 ENV NODE_ENV=production
+
 EXPOSE 3000
-CMD ["npm","start"]
+
+CMD ["node", "src/server.js"]

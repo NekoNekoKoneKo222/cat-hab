@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Cat Hub - Web VM</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body data-require-auth="true">
+  <div class="ch-mobile-topbar">
+    <button id="ch-mobile-toggle" type="button">メニュー</button>
+    <strong>Cat Hub</strong><span></span>
+  </div>
+  <div class="ch-layout">
+    <nav class="ch-nav" id="ch-nav-root"></nav>
+    <main class="ch-main">
+      <h1 class="ch-page-title">Web VM</h1>
+      <p class="ch-page-sub">
+        ブラウザ内(WebAssembly)で仮想マシンを起動し、Web閲覧用に使用できます。
+        VMの用途はWeb閲覧に限定されており、Cat Hubサーバーや内部ネットワークへは接続できません。
+      </p>
+
+      <div class="ch-card">
+        <div class="ch-vm-toolbar">
+          <button class="ch-btn" id="vm-start-btn" type="button">VM起動</button>
+          <button class="ch-btn secondary" id="vm-stop-btn" type="button" disabled>停止</button>
+          <button class="ch-btn secondary" id="vm-restart-btn" type="button" disabled>再起動</button>
+          <button class="ch-btn secondary" id="vm-pause-btn" type="button" disabled>一時停止</button>
+          <button class="ch-btn secondary" id="vm-fullscreen-btn" type="button" disabled>フルスクリーン</button>
+          <button class="ch-btn secondary" id="vm-keyboard-toggle-btn" type="button">仮想キーボード</button>
+          <span class="ch-vm-state stopped" id="vm-state-badge">
+            <span class="ch-vm-dot"></span><span id="vm-state-text">停止中</span>
+          </span>
+        </div>
+
+        <div id="vm-alert"></div>
+
+        <div id="vm-progress-wrap" class="ch-vm-progress-wrap" style="display:none;">
+          <div id="vm-progress-bar" class="ch-vm-progress-bar"></div>
+        </div>
+
+        <p style="font-size:0.82rem; color:var(--ch-text-muted); margin: 4px 0 14px;">
+          ISO: <span id="vm-iso-label">読み込み中...</span><br />
+          メモリ割り当て: <span id="vm-memory-label">-</span> ／ CPU: 1コア(v86の仕様上、複数コアには対応していません)<br />
+          ISOサイズが大きい場合、端末によってはVMが起動できない場合があります。
+        </p>
+
+        <div class="ch-vm-screen-wrap">
+          <div id="vm-screen-container">
+            <div class="ch-vm-placeholder" id="vm-placeholder">「VM起動」を押すとここに画面が表示されます</div>
+          </div>
+        </div>
+
+        <div class="ch-vm-keyboard" id="vm-keyboard-panel" style="display:none;">
+          <div class="ch-vm-key-row">
+            <span class="ch-vm-key" data-key="Escape">Esc</span>
+            <span class="ch-vm-key" data-key="Tab">Tab</span>
+            <span class="ch-vm-key ch-vm-mod" data-mod="ControlLeft">Ctrl</span>
+            <span class="ch-vm-key ch-vm-mod" data-mod="AltLeft">Alt</span>
+            <span class="ch-vm-key ch-vm-mod" data-mod="ShiftLeft">Shift</span>
+            <span class="ch-vm-key wide" data-key="Backspace">Backspace</span>
+            <span class="ch-vm-key wide" data-key="Enter">Enter</span>
+          </div>
+          <div class="ch-vm-key-row">
+            <span class="ch-vm-key" data-key="F1">F1</span>
+            <span class="ch-vm-key" data-key="F2">F2</span>
+            <span class="ch-vm-key" data-key="F3">F3</span>
+            <span class="ch-vm-key" data-key="F4">F4</span>
+            <span class="ch-vm-key" data-key="F5">F5</span>
+            <span class="ch-vm-key" data-key="F6">F6</span>
+            <span class="ch-vm-key" data-key="F7">F7</span>
+            <span class="ch-vm-key" data-key="F8">F8</span>
+            <span class="ch-vm-key" data-key="F9">F9</span>
+            <span class="ch-vm-key" data-key="F10">F10</span>
+            <span class="ch-vm-key" data-key="F11">F11</span>
+            <span class="ch-vm-key" data-key="F12">F12</span>
+          </div>
+          <div class="ch-vm-key-row">
+            <span class="ch-vm-key wide" data-key="ArrowUp">↑</span>
+          </div>
+          <div class="ch-vm-key-row">
+            <span class="ch-vm-key wide" data-key="ArrowLeft">←</span>
+            <span class="ch-vm-key wide" data-key="ArrowDown">↓</span>
+            <span class="ch-vm-key wide" data-key="ArrowRight">→</span>
+          </div>
+          <div class="ch-vm-key-row">
+            <span class="ch-vm-key wide" id="vm-text-key" data-key="_text">文字入力(タップして開始)</span>
+          </div>
+          <textarea class="ch-vm-hidden-input" id="vm-hidden-input" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
+        </div>
+      </div>
+
+      <div class="ch-card">
+        <h3 style="margin-top:0; color:var(--ch-purple-dark);">Web VMについて</h3>
+        <ul style="color:var(--ch-text-muted); font-size:0.88rem; line-height:1.7;">
+          <li>VMはブラウザ内(WebAssembly)で動作し、Cat Hubサーバー上でVMを実行するものではありません。</li>
+          <li>VM内部のブラウザからCat Hubサーバーや内部ネットワークへ直接アクセスすることはできません。</li>
+          <li>ISOファイルは管理者が設定したURL(GitHubリポジトリ等)から読み込まれます。</li>
+          <li>タッチ操作: タップ=左クリック、長押し=右クリック相当。外付けキーボード・マウスにも対応します。</li>
+        </ul>
+      </div>
+    </main>
+  </div>
+  <script src="/js/nav.js"></script>
+  <script src="/vm/lib/libv86.js"></script>
+  <script src="/js/webvm.js"></script>
+</body>
+</html>

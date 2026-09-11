@@ -83,7 +83,7 @@ const sessionMiddleware = session({
     ? new PgSession({
         pool: db.pool,
         tableName: 'session',
-        createTableIfMissing: true,
+        createTableIfMissing: false, // schema.sqlで起動シーケンス内に確実に作成するため無効化
       })
     : undefined, // DATABASE_URL未設定時はメモリストア(開発用フォールバック)
   name: 'cathub.sid',

@@ -1,6 +1,27 @@
 -- Cat Hub データベーススキーマ
 -- 起動時に自動実行される。IF NOT EXISTSで冪等性を確保。
 
+-- express-session (connect-pg-simple) 用のセッションテーブル。
+-- connect-pg-simpleの自動作成(createTableIfMissing)は非同期で走り、
+-- 起動直後の最初のリクエストとの間にタイミング問題を起こすことがあるため、
+-- 他の全テーブルと同じ起動シーケンスの中で確実に作成する。
+CREATE TABLE IF NOT EXISTS session (
+  sid    VARCHAR NOT NULL COLLATE "default",
+  sess   JSON NOT NULL,
+  expire TIMESTAMP(6) NOT NULL
+);
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'session_pkey'
+  ) THEN
+    ALTER TABLE session ADD CONSTRAINT session_pkey PRIMARY KEY (sid) NOT DEFERRABLE INITIALLY IMMEDIATE;
+  END IF;
+END $$;
+
+CREATE INDEX IF NOT EXISTS idx_session_expire ON session (expire);
+
 CREATE TABLE IF NOT EXISTS users (
   id            SERIAL PRIMARY KEY,
   username      VARCHAR(32) UNIQUE NOT NULL,

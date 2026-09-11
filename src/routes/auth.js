@@ -54,7 +54,11 @@ router.post('/register', async (req, res) => {
 
     // セッション固定攻撃対策: 認証状態変更時にセッションIDを再生成する
     req.session.regenerate((err) => {
-      if (err) return res.status(500).json({ error: 'セッションの作成に失敗しました' });
+      if (err) {
+        // eslint-disable-next-line no-console
+        console.error('[auth/register] session.regenerate エラー:', err.message);
+        return res.status(500).json({ error: 'セッションの作成に失敗しました' });
+      }
       req.session.userId = user.id;
       req.session.user = user;
       return res.status(201).json({ user: publicUser(user) });
@@ -89,7 +93,11 @@ router.post('/login', async (req, res) => {
     }
 
     req.session.regenerate((err) => {
-      if (err) return res.status(500).json({ error: 'セッションの作成に失敗しました' });
+      if (err) {
+        // eslint-disable-next-line no-console
+        console.error('[auth/login] session.regenerate エラー:', err.message);
+        return res.status(500).json({ error: 'セッションの作成に失敗しました' });
+      }
       req.session.userId = user.id;
       req.session.user = user;
       return res.json({ user: publicUser(user) });

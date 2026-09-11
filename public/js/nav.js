@@ -52,7 +52,7 @@
 
   async function fetchMe() {
     try {
-      const res = await fetch('/api/auth/me', { credentials: 'same-origin' });
+      const res = await fetch('/api/auth/me', { credentials: 'same-origin', cache: 'no-store' });
       const data = await res.json();
       return data.user || null;
     } catch (err) {

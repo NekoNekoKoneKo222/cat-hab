@@ -119,6 +119,12 @@ app.get('/healthz', async (req, res) => {
 });
 
 // --- API ---
+// 認証状態などが古い結果のままキャッシュされないよう、API応答は常にno-storeにする
+app.use('/api', (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
+  next();
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/proxy', proxyRoutes);
 app.use('/api/upload', uploadRoutes);

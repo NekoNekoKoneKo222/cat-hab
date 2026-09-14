@@ -1,0 +1,22 @@
+node_modules/
+npm-debug.log*
+
+.env
+.env.*
+!.env.example
+
+# ユーザーが配置するISOファイルはコミットしない(巨大ファイル対策)
+# ユーザー自身が配置したファイルを誤って削除するツールは使わないこと。
+vm/iso/*.iso
+public/vm/iso/*.iso
+*.iso
+
+.DS_Store
+Thumbs.db
+
+dist/
+build/
+*.log
+coverage/
+uploads/*
+!uploads/.gitkeep

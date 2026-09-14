@@ -106,7 +106,12 @@ const sessionMiddleware = session({
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
-    secure: config.isProd,
+    // NODE_ENV=production固定ではなく、実際のリクエストがHTTPSかどうか
+    // (X-Forwarded-Protoなど、'trust proxy'設定を踏まえてexpress-sessionが
+    // req.secureを見て都度判定)で決める。'auto'にしないと、httpでアクセス
+    // した場合にSecure属性付きCookieがブラウザ側で黙って破棄され、
+    // サーバー側には何のエラーも出ないままログイン状態が維持されなくなる。
+    secure: 'auto',
     maxAge: 1000 * 60 * 60 * 24 * 7, // 7日
   },
 });

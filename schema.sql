@@ -11,13 +11,19 @@ CREATE TABLE IF NOT EXISTS session (
   expire TIMESTAMP(6) NOT NULL
 );
 
--- 制約名(session_pkey)ではなく「session テーブルに主キーが存在するか」自体を
--- pg_index(indisprimary)で判定する。旧バージョンで別名の主キーが付いていた
--- 場合でも誤って二重に追加しようとしない。
+-- 「session テーブルに主キーが存在するか」自体をpg_index(indisprimary)で
+-- 判定する(制約名では判定しない)。
 -- また、主キー未付与のまま運用されていた既存テーブルにはsid重複行が
 -- 残っている可能性があるため、ADD CONSTRAINTの前に重複を除去しておく
 -- (重複がある状態でPRIMARY KEYを追加しようとすると一意性違反でエラーになり、
 --  この初期化処理全体が失敗して主キーが付かないまま起動してしまう)。
+--
+-- 注意: 制約名(かつてのsession_pkey)は使わない。Postgresではインデックス名は
+-- テーブル単位ではなくスキーマ全体で一意である必要があり、このDB上には
+-- アプリと無関係な別テーブル(user_sessions)がたまたま同名の主キー制約を
+-- 持っていたことが判明している。同じ名前を使うと、その無関係なテーブルの
+-- 制約と衝突したり、最悪誤って触ってしまったりする恐れがあるため、
+-- sessionテーブル専用の一意な名前を使う。
 DO $$
 BEGIN
   IF NOT EXISTS (
@@ -30,7 +36,7 @@ BEGIN
       USING session b
       WHERE a.sid = b.sid AND a.ctid < b.ctid;
 
-    ALTER TABLE session ADD CONSTRAINT session_pkey PRIMARY KEY (sid) NOT DEFERRABLE INITIALLY IMMEDIATE;
+    ALTER TABLE session ADD CONSTRAINT session_sid_pkey PRIMARY KEY (sid) NOT DEFERRABLE INITIALLY IMMEDIATE;
   END IF;
 END $$;
 

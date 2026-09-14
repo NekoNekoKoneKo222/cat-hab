@@ -11,16 +11,16 @@
     <div class="ch-auth-card">
       <h1>Cat Hub にログイン</h1>
       <div id="ch-alert"></div>
-      <form class="ch-form" id="login-form">
+      <form class="ch-form" id="login-form" novalidate>
         <div class="ch-field">
           <label for="username">ユーザー名</label>
-          <input id="username" name="username" autocomplete="username" required />
+          <input id="username" name="username" autocomplete="username" />
         </div>
         <div class="ch-field">
           <label for="password">パスワード</label>
-          <input id="password" name="password" type="password" autocomplete="current-password" required />
+          <input id="password" name="password" type="password" autocomplete="current-password" />
         </div>
-        <button class="ch-btn" type="submit">ログイン</button>
+        <button class="ch-btn" type="button" id="login-submit-btn">ログイン</button>
       </form>
       <p style="text-align:center; margin-top:16px; font-size:0.88rem; color:var(--ch-text-muted);">
         アカウントをお持ちでない場合は <a href="/register.html">新規登録</a>

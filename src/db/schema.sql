@@ -11,11 +11,25 @@ CREATE TABLE IF NOT EXISTS session (
   expire TIMESTAMP(6) NOT NULL
 );
 
+-- 制約名(session_pkey)ではなく「session テーブルに主キーが存在するか」自体を
+-- pg_index(indisprimary)で判定する。旧バージョンで別名の主キーが付いていた
+-- 場合でも誤って二重に追加しようとしない。
+-- また、主キー未付与のまま運用されていた既存テーブルにはsid重複行が
+-- 残っている可能性があるため、ADD CONSTRAINTの前に重複を除去しておく
+-- (重複がある状態でPRIMARY KEYを追加しようとすると一意性違反でエラーになり、
+--  この初期化処理全体が失敗して主キーが付かないまま起動してしまう)。
 DO $$
 BEGIN
   IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint WHERE conname = 'session_pkey'
+    SELECT 1
+    FROM pg_index i
+    JOIN pg_class c ON c.oid = i.indrelid
+    WHERE c.relname = 'session' AND i.indisprimary
   ) THEN
+    DELETE FROM session a
+      USING session b
+      WHERE a.sid = b.sid AND a.ctid < b.ctid;
+
     ALTER TABLE session ADD CONSTRAINT session_pkey PRIMARY KEY (sid) NOT DEFERRABLE INITIALLY IMMEDIATE;
   END IF;
 END $$;

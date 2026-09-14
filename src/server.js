@@ -78,14 +78,27 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: false, limit: '1mb' }));
 
 // --- セッション ---
+const sessionStore = config.databaseUrl
+  ? new PgSession({
+      pool: db.pool,
+      tableName: 'session',
+      createTableIfMissing: false, // schema.sqlで起動シーケンス内に確実に作成するため無効化
+    })
+  : undefined; // DATABASE_URL未設定時はメモリストア(開発用フォールバック)
+
+if (sessionStore) {
+  // connect-pg-simpleはストア内でDBエラーが起きるとEventEmitterの'error'を発火する。
+  // リスナーが1つも無いとNodeの仕様でそのままプロセスが例外終了してしまい、
+  // 「セッション保存に失敗しているのにクラッシュ以外は何も起きない
+  //  (ログにも残らない)」状態になっていた。ここで受け止めてログに残す。
+  sessionStore.on('error', (err) => {
+    // eslint-disable-next-line no-console
+    console.error('[session] セッションストアでエラーが発生しました:', err);
+  });
+}
+
 const sessionMiddleware = session({
-  store: config.databaseUrl
-    ? new PgSession({
-        pool: db.pool,
-        tableName: 'session',
-        createTableIfMissing: false, // schema.sqlで起動シーケンス内に確実に作成するため無効化
-      })
-    : undefined, // DATABASE_URL未設定時はメモリストア(開発用フォールバック)
+  store: sessionStore,
   name: 'cathub.sid',
   secret: config.sessionSecret,
   resave: false,
@@ -93,7 +106,12 @@ const sessionMiddleware = session({
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
-    secure: config.isProd,
+    // NODE_ENV=production固定ではなく、実際のリクエストがHTTPSかどうか
+    // (X-Forwarded-Protoなど、'trust proxy'設定を踏まえてexpress-sessionが
+    // req.secureを見て都度判定)で決める。'auto'にしないと、httpでアクセス
+    // した場合にSecure属性付きCookieがブラウザ側で黙って破棄され、
+    // サーバー側には何のエラーも出ないままログイン状態が維持されなくなる。
+    secure: 'auto',
     maxAge: 1000 * 60 * 60 * 24 * 7, // 7日
   },
 });

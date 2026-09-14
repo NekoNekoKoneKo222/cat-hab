@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cat Hub - Cloud Cat</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body data-require-auth="true">
+  <div class="ch-mobile-topbar">
+    <button id="ch-mobile-toggle" type="button">メニュー</button>
+    <strong>Cat Hub</strong><span></span>
+  </div>
+  <div class="ch-layout">
+    <nav class="ch-nav" id="ch-nav-root"></nav>
+    <main class="ch-main">
+      <h1 class="ch-page-title">Cloud Cat</h1>
+      <p class="ch-page-sub">フレンド・DM・グループ・コミュニティ・ルームでつながれます。</p>
+
+      <div class="ch-cc-tabs" id="cc-tabs">
+        <button class="ch-cc-tab active" data-tab="friends">フレンド</button>
+        <button class="ch-cc-tab" data-tab="dm">DM</button>
+        <button class="ch-cc-tab" data-tab="groups">グループ</button>
+        <button class="ch-cc-tab" data-tab="communities">コミュニティ</button>
+        <button class="ch-cc-tab" data-tab="rooms">ルーム</button>
+      </div>
+
+      <div class="ch-cc-layout">
+        <div class="ch-card ch-cc-sidebar" id="cc-sidebar"></div>
+        <div class="ch-card ch-cc-content" id="cc-content"></div>
+      </div>
+    </main>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/cloudcat.js"></script>
+</body>
+</html>

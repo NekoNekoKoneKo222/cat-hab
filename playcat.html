@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cat Hub - Play Cat</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body data-require-auth="true">
+  <div class="ch-mobile-topbar">
+    <button id="ch-mobile-toggle" type="button">メニュー</button>
+    <strong>Cat Hub</strong><span></span>
+  </div>
+  <div class="ch-layout">
+    <nav class="ch-nav" id="ch-nav-root"></nav>
+    <main class="ch-main">
+      <h1 class="ch-page-title">Play Cat</h1>
+      <p class="ch-page-sub">ブラウザゲームを検索・プレイ・評価できます。</p>
+
+      <div class="ch-card">
+        <form class="ch-form" id="game-search-form" style="max-width:none; flex-direction:row; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+          <div class="ch-field" style="flex:1; min-width:180px;">
+            <label for="game-search-input">キーワード検索</label>
+            <input id="game-search-input" type="text" placeholder="将棋" />
+          </div>
+          <div class="ch-field" style="min-width:160px;">
+            <label for="game-category-select">カテゴリ</label>
+            <select id="game-category-select">
+              <option value="">すべて</option>
+            </select>
+          </div>
+          <button class="ch-btn" type="submit">検索</button>
+          <button class="ch-btn secondary" type="button" id="show-favorites-btn">お気に入りのみ</button>
+        </form>
+      </div>
+
+      <div id="game-detail-card" class="ch-card" style="display:none;"></div>
+
+      <div class="ch-grid" id="games-grid"></div>
+    </main>
+  </div>
+  <script src="/js/nav.js"></script>
+  <script src="/js/playcat.js"></script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cat Hub - Cat Tube</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body data-require-auth="true">
+  <div class="ch-mobile-topbar">
+    <button id="ch-mobile-toggle" type="button">メニュー</button>
+    <strong>Cat Hub</strong><span></span>
+  </div>
+  <div class="ch-layout">
+    <nav class="ch-nav" id="ch-nav-root"></nav>
+    <main class="ch-main">
+      <h1 class="ch-page-title">Cat Tube</h1>
+      <p class="ch-page-sub">YouTube動画を検索・視聴できます。</p>
+
+      <div class="ch-card">
+        <form class="ch-form" id="search-form" style="max-width:none; flex-direction:row; gap:10px; align-items:flex-end;">
+          <div class="ch-field" style="flex:1;">
+            <label for="search-input">検索キーワード または YouTube URL</label>
+            <input id="search-input" type="text" placeholder="猫 かわいい" required />
+          </div>
+          <button class="ch-btn" type="submit">検索</button>
+        </form>
+        <div id="search-alert" style="margin-top:10px;"></div>
+      </div>
+
+      <div id="player-card" class="ch-card" style="display:none;">
+        <div style="position:relative; padding-top:56.25%; background:#000; border-radius:10px; overflow:hidden;">
+          <iframe
+            id="player-frame"
+            style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+        </div>
+        <h3 id="player-title" style="margin: 14px 0 4px; color:var(--ch-purple-dark);"></h3>
+        <p id="player-channel" style="margin:0; color:var(--ch-text-muted); font-size:0.88rem;"></p>
+        <p id="player-desc" style="margin-top:10px; font-size:0.85rem; color:var(--ch-text-muted); white-space:pre-wrap;"></p>
+      </div>
+
+      <div class="ch-grid" id="results-grid"></div>
+    </main>
+  </div>
+  <script src="/js/nav.js"></script>
+  <script src="/js/cattube.js"></script>
+</body>
+</html>

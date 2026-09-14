@@ -204,6 +204,12 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   // eslint-disable-next-line no-console
   console.error('[error]', err);
+  // express-sessionはレスポンス送信後にセッション保存エラーをnext(err)経由で
+  // ここに回してくることがある。その場合ヘッダーは送信済みなので、
+  // 二重にres.json()しようとするとERR_HTTP_HEADERS_SENTになる。
+  if (res.headersSent) {
+    return next(err);
+  }
   res.status(500).json({ error: 'サーバー内部エラーが発生しました' });
 });
 

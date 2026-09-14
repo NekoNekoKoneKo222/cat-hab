@@ -26,6 +26,14 @@ BEGIN
     JOIN pg_class c ON c.oid = i.indrelid
     WHERE c.relname = 'session' AND i.indisprimary
   ) THEN
+    -- 過去の失敗した初期化試行などで、'session_pkey' という名前だけの
+    -- インデックス/制約が主キーとして登録されないまま残っていることがある。
+    -- これを放置すると次のADD CONSTRAINTが名前衝突
+    -- (relation "session_pkey" already exists) で失敗するため、
+    -- 正式な主キーでない同名の残骸は先に片付けてから作り直す。
+    ALTER TABLE session DROP CONSTRAINT IF EXISTS session_pkey;
+    DROP INDEX IF EXISTS session_pkey;
+
     DELETE FROM session a
       USING session b
       WHERE a.sid = b.sid AND a.ctid < b.ctid;

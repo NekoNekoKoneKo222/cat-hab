@@ -1,0 +1,9 @@
+const pages=[['home','⌂','Home','/index.html'],['tube','▶','Cat Tube','/cattube.html'],['cloud','☁','Cloud Cat','/cloudcat.html'],['play','🎮','Play Cat','/playcat.html'],['proxy','⇄','Proxy','/proxy.html'],['admin','⚙','Admin','/admin.html']];
+const current=document.body.dataset.page||'home';
+const shell=document.querySelector('[data-shell]');
+if(shell){const nav=pages.map(([id,icon,label,url])=>`<a class="${current===id?'active':''}" href="${url}"><span class="nav-icon">${icon}</span>${label}</a>`).join('');shell.insertAdjacentHTML('afterbegin',`<aside class="sidebar" id="sidebar"><a class="brand" href="/index.html"><span class="brand-mark">C</span><span>Cat Hub<small>ONE PLACE. ALL CATS.</small></span></a><nav class="nav">${nav}</nav><div class="sidebar-foot"><div class="user"><span class="avatar">N</span><div><b>Neko</b><small>オンライン</small></div></div></div></aside>`)}
+document.querySelectorAll('[data-menu]').forEach(b=>b.addEventListener('click',()=>document.querySelector('#sidebar')?.classList.toggle('open')));
+document.querySelectorAll('[data-demo]').forEach(b=>b.addEventListener('click',()=>toast(b.dataset.demo||'この機能は次の実装段階で接続します')));
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{b.parentElement.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');const target=document.querySelector('[data-tab-content]');if(target)target.innerHTML=`<div class="empty"><div><div style="font-size:48px">${b.textContent.includes('DM')?'💬':'🐾'}</div><h3>${b.textContent}</h3><p>画面デザイン用プレビューです。API接続は次の段階で行います。</p></div></div>`}));
+function toast(msg){document.querySelector('.toast')?.remove();const e=document.createElement('div');e.className='toast';e.textContent=msg;document.body.append(e);setTimeout(()=>e.remove(),2600)}
+document.querySelectorAll('form[data-preview]').forEach(f=>f.addEventListener('submit',e=>{e.preventDefault();toast('プレビュー操作を受け付けました')}));

@@ -1,7 +1,2 @@
-# Cat Hub administrators
-# Add one Firebase Authentication UID or email address per line.
-# Empty lines and lines beginning with # are ignored.
-#
-# Examples:
-# abcDEF123456789
-# owner@example.com
+# Cat Hub administrators: one username per line. Do not list passwords here.
+# Set a username after registering an account.

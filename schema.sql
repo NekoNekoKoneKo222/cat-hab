@@ -267,3 +267,29 @@ CREATE INDEX IF NOT EXISTS idx_channel_messages_channel ON channel_messages(chan
 CREATE INDEX IF NOT EXISTS idx_room_messages_room ON room_messages(room_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, is_read);
 CREATE INDEX IF NOT EXISTS idx_friendships_users ON friendships(requester_id, addressee_id);
+
+CREATE TABLE IF NOT EXISTS chat_logs (
+ id BIGSERIAL PRIMARY KEY, room_id INTEGER REFERENCES rooms(id) ON DELETE SET NULL,
+ user_id INTEGER REFERENCES users(id) ON DELETE SET NULL, username VARCHAR(32),
+ message TEXT, action VARCHAR(32) NOT NULL, timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE TABLE IF NOT EXISTS tube_history (
+ user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ video_id VARCHAR(20) NOT NULL, title TEXT NOT NULL, watched_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+ PRIMARY KEY(user_id,video_id)
+);
+CREATE TABLE IF NOT EXISTS tube_favorites (
+ user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ video_id VARCHAR(20) NOT NULL, title TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+ PRIMARY KEY(user_id,video_id)
+);
+CREATE TABLE IF NOT EXISTS tube_playlists (
+ id BIGSERIAL PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+ name VARCHAR(80) NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE TABLE IF NOT EXISTS tube_playlist_items (
+ playlist_id BIGINT NOT NULL REFERENCES tube_playlists(id) ON DELETE CASCADE,
+ video_id VARCHAR(20) NOT NULL, title TEXT NOT NULL, added_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+ PRIMARY KEY(playlist_id,video_id)
+);
+ALTER TABLE rooms ADD COLUMN IF NOT EXISTS join_code_hash VARCHAR(64);

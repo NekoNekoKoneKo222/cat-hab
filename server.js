@@ -24,9 +24,13 @@ const communitiesRoutes = require('./routes/communities');
 const roomsRoutes = require('./routes/rooms');
 const cattubeRoutes = require('./routes/cattube');
 const gamesRoutes = require('./routes/games');
+const adminRoutes = require('./routes/admin');
 const bus = require('./utils/events');
 
 const app = express();
+if (config.isProd && (!config.databaseUrl || config.sessionSecret === 'dev-insecure-secret-change-me')) {
+  throw new Error('DATABASE_URL and SESSION_SECRET are required in production');
+}
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: { origin: false }, // 同一オリジンのみ許可。Cross-Origin接続は行わない。
@@ -116,12 +120,20 @@ const sessionMiddleware = session({
   },
 });
 app.use(sessionMiddleware);
+app.use('/api', (req,res,next) => {
+ if (['GET','HEAD','OPTIONS'].includes(req.method)) return next();
+ const origin=req.get('origin');
+ const host=req.get('host');
+ if (!origin || !host) return res.status(403).json({error:'Originが必要です'});
+ try { const u=new URL(origin); if(u.host===host && (u.protocol==='https:' || !config.isProd)) return next(); } catch {}
+ return res.status(403).json({error:'Originが一致しません'});
+});
 
 // --- 静的ファイル配信 ---
-app.use(express.static(path.join(__dirname, '..', 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(
   '/uploads',
-  express.static(path.join(__dirname, '..', 'uploads'), {
+  express.static(path.join(__dirname, 'uploads'), {
     // アップロードファイルはブラウザにスクリプトとして解釈されないようMIME推測を無効化
     setHeaders: (res) => {
       res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -133,7 +145,7 @@ app.use(
 // --- ヘルスチェック (Render用) ---
 app.get('/healthz', async (req, res) => {
   const dbOk = await db.healthCheck();
-  res.json({ ok: true, db: dbOk, env: config.nodeEnv });
+  res.status(dbOk ? 200 : 503).json({ ok: dbOk, db: dbOk, env: config.nodeEnv });
 });
 
 // --- API ---
@@ -154,6 +166,7 @@ app.use('/api/communities', communitiesRoutes);
 app.use('/api/rooms', roomsRoutes);
 app.use('/api/cattube', cattubeRoutes);
 app.use('/api/games', gamesRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/api/config/public', (req, res) => {
   // フロントエンドが必要とする「秘密情報を含まない」設定値のみ返す
@@ -196,7 +209,7 @@ app.use('/api', (req, res) => {
 
 // --- SPA的ルーティングではなく複数静的ページ構成。存在しないパスは404ページ ---
 app.use((req, res) => {
-  res.status(404).sendFile(path.join(__dirname, '..', 'public', '404.html'));
+  res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
 });
 
 // --- エラーハンドラ (詳細なスタックはクライアントへ返さない) ---
@@ -232,8 +245,8 @@ async function checkRoomMembership(scope, roomId, userId) {
     return r.rows.length > 0;
   }
   if (scope === 'channel') {
-    // コミュニティ/チャンネルはログイン済みユーザーに公開されている
-    return true;
+    const r=await db.query('SELECT 1 FROM channels WHERE id=$1',[roomId]);
+    return r.rows.length>0;
   }
   return false;
 }
@@ -253,6 +266,8 @@ io.on('connection', (socket) => {
       if (!['dm', 'channel', 'room'].includes(scope) || !Number.isInteger(id)) {
         return ack && ack({ ok: false, error: '不正なパラメータです' });
       }
+      const account = await db.query('SELECT is_banned FROM users WHERE id=$1',[userId]);
+      if (!account.rows[0] || account.rows[0].is_banned) return ack && ack({ok:false,error:'アカウントが利用できません'});
       const allowed = await checkRoomMembership(scope, id, userId);
       if (!allowed) return ack && ack({ ok: false, error: 'アクセス権がありません' });
       socket.join(scope + ':' + id);
@@ -291,8 +306,8 @@ async function start() {
     await db.initSchema();
     await db.seedInitialData();
   } catch (err) {
-    // eslint-disable-next-line no-console
     console.error('[db] スキーマ初期化に失敗しました:', err.message);
+    if (config.isProd) { process.exitCode = 1; return; }
   }
   server.listen(config.port, () => {
     // eslint-disable-next-line no-console

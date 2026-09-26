@@ -1,10 +1,9 @@
 # Cat Hub
 
 Cat Tube / Cloud Cat / Play Cat / Proxy / Web VM を1つのWebサービスへ統合したアプリケーションです。
-Node.js + Express + Socket.IO + PostgreSQLで構築され、単一のRender Web Serviceとして動作します。
+Node.js + Express + Socket.IO + PostgreSQLで構築され、Render Web Serviceで動作する構成です。Cloud Cat の別サービス化は今後の作業です。
 
-> 現時点の実装状況: 基盤(認証・DB・GUI枠組み)、Proxy、Web VM、Cat Tube、Cloud Cat、
-> Play Catの全機能を実装済みです。詳細な制限事項は各セクションを参照してください。
+> 機能の接続状況と未完了項目は [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) を参照してください。
 
 ## セットアップ (ローカル開発)
 

@@ -1,14 +1,14 @@
 {
   "name": "cat-hub",
-  "version": "1.0.0",
-  "description": "Cat Hub - Cat Tube / Cloud Cat / Play Cat / Proxy / Web VM を統合したWebサービス",
+  "version": "1.1.0",
+  "description": "Cat Hub - Cat Tube / Cloud Cat / Play Cat / Proxy を統合したWebサービス",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node src/server.js"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.18.1"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -16,7 +16,6 @@
     "connect-pg-simple": "^9.0.1",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
-    "firebase-admin": "^13.4.0",
     "helmet": "^7.1.0",
     "morgan": "^1.10.0",
     "multer": "^2.0.1",

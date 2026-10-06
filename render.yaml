@@ -10,9 +10,9 @@ services:
       - key: FIREBASE_API_KEY
         sync: false
       - key: FIREBASE_AUTH_DOMAIN
-        sync: false
+        value: cat-hub-4cf7a.firebaseapp.com
       - key: FIREBASE_PROJECT_ID
-        sync: false
+        value: cat-hub-4cf7a
       - key: FIREBASE_APP_ID
         sync: false
       - key: FIREBASE_SERVICE_ACCOUNT

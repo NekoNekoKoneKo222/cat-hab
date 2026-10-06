@@ -10,8 +10,10 @@ services:
         sync: false
       - key: ADMIN_USERS
         sync: false
-      - key: DATABASE_URL
+      - key: FIREBASE_SERVICE_ACCOUNT
         sync: false
+      - key: FIREBASE_PROJECT_ID
+        value: cat-hub-4cf7a
       - key: YOUTUBE_API_KEY
         sync: false
       - key: CLOUD_CAT_URL

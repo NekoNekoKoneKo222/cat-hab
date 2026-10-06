@@ -1,28 +1,25 @@
 # Cat Hub
 
-Cat Hub は Cat Tube、Cloud Cat、Play Cat、Proxy、Admin の入口です。現在の起動ファイルは `src/server.js` です。リポジトリ直下の古い `server.js` は起動対象ではありません。
+Cat Hub は Cat Tube、Cloud Cat、Play Cat、Proxy、Admin の入口です。起動ファイルは `src/server.js` です。
 
-## 構成
+## Firebase 構成
 
-- Cat Hub: Express、PostgreSQL、セッション、アカウント名＋パスワード認証。既存の画面構成と Play Cat の画面を維持します。
-- Cloud Cat と Cat Tube: 独立したサービス。Cat Hub は `CLOUD_CAT_URL` と `CAT_TUBE_URL` の公開 URL を使用して `/healthz` を安全な Proxy で確認し、それぞれの画面へ案内します。
-- `GET /api/proxy?url=...`: ログイン必須、読み取り専用。HTTP/HTTPS のみ、内部 IP・予約済み IP・ローカル名・危険な Content-Type を拒否します。DNS 解決した IPv4 に接続を固定し、リダイレクト先も再検証します。Cookie、Authorization、任意のリクエストヘッダーは転送しません。
-
-## 環境変数
-
-`.env.example` にキー名を記載しています。`DATABASE_URL` と `SESSION_SECRET` は必須です。`ADMIN_USERS` はカンマ区切りのアカウント名です。秘密情報をソースや `.env.example` に記載しないでください。
-
-## 起動
-
-Node.js 20 以上と稼働中の PostgreSQL が必要です。
+- Firestore Standard の `(default)` データベースにアカウント、セッション、ゲーム、お気に入りを保存します。
+- 登録・ログインはメール不要のアカウント名＋パスワードです。表示名は任意です。パスワードは bcrypt でハッシュ化し、サーバー側で照合します。
+- Firebase Admin SDK のみが Firestore にアクセスします。`firestore.rules` はクライアントからの直接読み書きをすべて拒否します。
+- `FIREBASE_SERVICE_ACCOUNT` に JSON のサービスアカウントを、`FIREBASE_PROJECT_ID` に `cat-hub-4cf7a` を設定してください。Google の Application Default Credentials も利用できます。
+- `SESSION_SECRET` は長く予測できない値を指定してください。`ADMIN_USERS` は管理者アカウント名のカンマ区切りです。
 
 ```sh
 npm ci
 npm start
+npm test
 ```
 
-起動時に `src/schema.sql` を適用します。既存テーブルやデータを削除しません。`/healthz` は DB 接続を確認します。`npm test` のテストは現在 `node --test src/safe-proxy.test.js` で実行できます。
+`/healthz` は Firestore への接続を確認します。Firestore ルールは `firebase.json` から Firebase CLI でデプロイできます。
 
-## 既知の制限
+## サービス
 
-Render の既存 PostgreSQL が停止している場合、アカウント登録とセッションを使う新バージョンは起動できません。DB の復旧と `DATABASE_URL` 設定を確認してから本番へ切り替えてください。Cat Tube には `YOUTUBE_API_KEY`、Cloud Cat には別の PostgreSQL 接続が必要です。既存 Play Cat 画面はこの変更では作り直していません。
+Cloud Cat と Cat Tube は独立したサービスです。`CLOUD_CAT_URL` と `CAT_TUBE_URL` に公開 URL を設定します。`GET /api/proxy?url=...` はログイン必須の読み取り専用プロキシで、内部アドレス、危険な応答形式、大きすぎる応答を拒否します。
+
+既存 PostgreSQL のユーザー情報は自動移行しません。旧 Firebase Authentication のメールアカウントとも別のアカウントになります。
